@@ -431,6 +431,8 @@ document.addEventListener('DOMContentLoaded', function(){
     if (!content) return;
     // Niente indice su shop, carrello, ordine, grazie, schede prodotto/categoria (hanno elementi nz-*): solo articoli e pagine normali.
     if (content.querySelector('[id^="nz-"],[class*="nz-"]') || {{ page.ecommerce | default: false | jsonify }} === true) return;
+    // Niente indice automatico nella pagina Servizi (ha gia' il suo elenco sezioni compatto).
+    if (content.querySelector('.srv-indice')) return;
     // H2 = voci principali, H3 = sottovoci rientrate (15/10/2026). La soglia (>=3) conta solo gli H2.
     // Gli H3 prima di qualunque H2 diventano voci di primo livello (vedi !lastTopLi sotto).
     var headings = Array.prototype.slice.call(content.querySelectorAll('h2, h3'));
