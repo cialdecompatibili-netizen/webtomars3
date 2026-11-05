@@ -13,5 +13,6 @@
 {% for block in blocks %}{% if block.enabled %}
 {% if block.id == 'features' and site.servizi.size > 0 %}{% include home-servizi.html %}
 {% elsif block.id == 'progetti' %}{% include home-progetti.html %}
+{% elsif block.id == 'avvisi' and site.posts.size > 0 %}{% include home-articoli.html %}
 {% else %}{{ block.html | replace: '__BASEURL__', site.baseurl }}{% endif %}
 {% endif %}{% endfor %}

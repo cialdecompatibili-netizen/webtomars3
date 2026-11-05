@@ -1,14 +1,14 @@
 [
   {
-    "nome": "blog",
-    "descrizione": "Novita', approfondimenti e dietro le quinte"
+    "nome": "SEO",
+    "descrizione": "Guide e approfondimenti: SEO."
   },
   {
-    "nome": "Guide",
-    "descrizione": "Istruzioni passo passo, spiegate semplici."
+    "nome": "Web design",
+    "descrizione": "Guide e approfondimenti: Web design."
   },
   {
-    "nome": "Novità",
-    "descrizione": "Aggiornamenti e notizie dal sito."
+    "nome": "Web marketing",
+    "descrizione": "Guide e approfondimenti: Web marketing."
   }
 ]

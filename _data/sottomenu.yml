@@ -31,3 +31,13 @@
 # Per levare una tendina: cancella il blocco, la voce torna un link normale.
 # Documentazione del funzionamento: commento in testa a _includes/masthead.html.
 # =====================================================================================
+
+Agenzia:
+  - title: "Blog"
+    url: /blog/
+  - divider: true
+  - title: "Chi siamo"
+    url: /chi-siamo/
+  - divider: true
+  - title: "Servizi"
+    url: /servizi/

@@ -20,7 +20,7 @@
 # languages = elenco lingue attive: sono i nomi delle cartelle (it alla radice, en in /en/).
 locale: "it"
 default_lang: it
-languages: [it, en]
+languages: [it]
 
 # --- IDENTITA' DEL SITO (da cambiare per ogni clone) -----------------------------------
 # NOME SITO (menu in alto, footer, SEO): AUTOMATICO, calcolato da _includes/site-name.html.
@@ -33,7 +33,7 @@ related_posts: 3
 # Il sito impagina con assets/js/paginazione.js (attributo data-per). Valori dell'admin: 10, 20, 50, 100, 200, 500.
 per_page: 20
 email: ""
-description: "Descrizione breve del sito (compare nei motori di ricerca)."
+description: "Web agency a Roma dal 2010: siti web, e-commerce, SEO, Google Ads e brand identity su misura per imprenditori, start up e PA."
 
 # --- TEMA (Minimal Mistakes, caricato da remoto) ----------------------------------------
 # I COLORI veri del sito NON stanno qui ma in _data/tema.json (accento, menu, testo).
@@ -162,6 +162,8 @@ defaults:
     values:
       layout: single
       author_profile: false
+      toc: true
+      toc_label: "In questa pagina"
       read_time: true
       share: true
   - scope:

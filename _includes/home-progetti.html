@@ -1,10 +1,15 @@
 {%- comment -%}
-GUIDA-SVILUPPO: blocco "Lavori svolti" della home, richiamato da render-blocks.html per il blocco con id "progetti". Legge la collection progetti (campi importance e in_home), massimo 6.
+GUIDA-SVILUPPO: blocco "Progetti" della home (render-blocks.html, id "progetti"). DINAMICO da _progetti: se almeno uno ha in_home: true vanno solo quelli, altrimenti i primi 6.
+Ordine = campo importance (1 per primo). Link esterno se il progetto ha 'redirect:'. Stili: assets/css/home-webtomars.css.
 {%- endcomment -%}
-{% assign prj = site.progetti | where_exp: "p", "p.in_home != false" | sort: "importance" %}
-{% if prj.size > 0 %}
-<section class="ex-sec ex-sec-warm" id="lavori" aria-labelledby="lavori-title"><div class="ex-wrap"><div class="ex-svc-head"><h2 class="ex-h2" id="lavori-title">Lavori svolti</h2><p>Alcuni interventi realizzati su fune, senza ponteggi.</p></div><div class="ex-svcs">
-{% for p in prj limit: 6 %}<a class="ex-svc" href="{{ p.url | relative_url }}"><span class="ex-svc-t">{{ p.title }}</span><span class="ex-svc-d">{{ p.description | default: p.excerpt | strip_html | strip | truncatewords: 14 }}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></a>
-{% endfor %}
-</div></div></section>
-{% endif %}
+{%- assign prj_home = site.progetti | where: 'in_home', 'true' | sort: 'importance', 'last' -%}
+{%- assign prj_limit = prj_home.size -%}
+{%- if prj_home.size == 0 -%}{%- assign prj_home = site.progetti | sort: 'importance', 'last' -%}{%- assign prj_limit = 6 -%}{%- endif -%}
+{%- if prj_home.size > 0 %}
+<div class="prj-home"><h2>I nostri progetti</h2><div class="prj-home-grid">
+{%- for p in prj_home limit: prj_limit -%}
+{%- assign p_ext = false -%}{%- if p.redirect contains '://' -%}{%- assign p_ext = true -%}{%- endif -%}
+<a class="prj-home-card" href="{% if p_ext %}{{ p.redirect }}{% else %}{{ p.url | relative_url }}{% endif %}"{% if p_ext %} target="_blank" rel="noopener"{% endif %}><b>{{ p.title | escape }}</b>{% if p.description != blank %}<small>{{ p.description | escape }}</small>{% endif %}</a>
+{%- endfor %}
+</div><div class="prj-home-more"><a href="{{ '/progetti/' | relative_url }}">Vedi tutti i progetti</a></div></div>
+{%- endif %}

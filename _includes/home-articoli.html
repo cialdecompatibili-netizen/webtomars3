@@ -1,0 +1,10 @@
+{%- comment -%}
+GUIDA-SVILUPPO: blocco "Ultimi articoli" della home (render-blocks.html, id "avvisi"). DINAMICO: gli ultimi 3 articoli del blog. Stili: assets/css/home-webtomars.css (stesse card dei servizi).
+{%- endcomment -%}
+{%- if site.posts.size > 0 %}
+<div class="srv-home"><h2>Dal blog</h2><div class="srv-home-grid">
+{%- for p in site.posts limit: 3 -%}
+<a class="srv-home-card" href="{{ p.url | relative_url }}"><b>{{ p.title | escape }}</b>{% assign d = p.description | default: p.excerpt | strip_html | strip %}{% if d != blank %}<small>{{ d | truncatewords: 14 | escape }}</small>{% endif %}</a>
+{%- endfor %}
+</div><div class="srv-home-more"><a href="{{ '/blog/' | relative_url }}">Vai al blog</a></div></div>
+{%- endif %}
