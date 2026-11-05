@@ -1,0 +1,22 @@
+# =====================================================================================
+# _data/navigation.yml  -  VOCI PRINCIPALI DEL MENU (le modifica anche admin > Menu)
+# - title = testo mostrato. url = SEMPRE interno senza nome repo (/blog/, mai /nome-repo/blog/):
+#   ci pensa relative_url in _includes/masthead.html. Link esterno: url completo https://...
+# - Le tendine (sottomenu) stanno in _data/sottomenu.yml: la chiave li' deve essere
+#   IDENTICA al title di qui.
+# - La voce "Shop" sta qui ma si vede SOLO se in _config.yml ecommerce: true (il masthead la salta se spento).
+# - Per lingua: _data/i18n/<lingua>/navigation.yml sostituisce questo file (creato dall'admin).
+# =====================================================================================
+main:
+  - title: "Home"
+    url: /
+  - title: "Servizi"
+    url: /servizi/
+  - title: "Blog"
+    url: /blog/
+  - title: "Shop"
+    url: /negozio/
+  - title: "Chi siamo"
+    url: /chi-siamo/
+  - title: "Contatti"
+    url: /contatti/

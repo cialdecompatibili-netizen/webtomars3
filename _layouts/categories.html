@@ -1,0 +1,47 @@
+---
+layout: archive
+---
+{%- comment -%}
+GUIDA-SVILUPPO: ELENCO CATEGORIE (usato da _pages/cat-list.md). Le categorie vengono da _data/categorie.json (admin > Categorie), non dagli articoli:
+una categoria senza articoli compare comunque con 0. Sopra: schede con conteggio e link a /categories/#slug; sotto: archivio articoli raggruppati per PRIMA categoria (post.categories | first). Solo articoli della lingua della pagina.
+{%- endcomment -%}
+{%- assign posts_l = site.posts | where: "lang", page.lang -%}
+
+{{ content }}
+
+{% assign categorie = site.data.categorie %}
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-top:20px">
+{% for cat in categorie %}
+  {% assign nome = cat.nome %}
+  {% assign posts_cat = posts_l | where_exp:"p","p.categories contains nome" %}
+  <a href="{{ site.baseurl }}/categories/#{{ nome | slugify }}" style="text-decoration:none">
+    <div style="background:white;border:1.5px solid #e5e5e5;border-radius:12px;padding:22px;transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow='none'">
+      <div style="font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-transform:capitalize">{{ nome }}</div>
+      {% if cat.descrizione and cat.descrizione != "" %}
+      <div style="font-size:13px;color:#666;margin-bottom:12px;line-height:1.5">{{ cat.descrizione | strip_html | truncate: 120 }}</div>
+      {% endif %}
+      <div style="font-size:12px;color:#0e7490;font-weight:600">{{ posts_cat.size }} articoli →</div>
+    </div>
+  </a>
+{% endfor %}
+</div>
+
+<hr style="margin:40px 0">
+
+{% assign posts_by_category = posts_l | group_by_exp: "post", "post.categories | first" %}
+{% for cat in posts_by_category %}
+<h2 id="{{ cat.name | slugify }}" style="text-transform:capitalize;margin-bottom:16px">{{ cat.name }}</h2>
+{% assign cat_data = site.data.categorie | where:"nome",cat.name | first %}
+{% if cat_data.descrizione and cat_data.descrizione != "" %}
+<div style="color:#666;font-size:14px;margin-bottom:16px;line-height:1.7">{{ cat_data.descrizione }}</div>
+{% endif %}
+<ul style="list-style:none;padding:0;margin-bottom:32px">
+  {% for post in cat.items %}
+  <li style="border-bottom:1px solid #f0f0f0;padding:10px 0;display:flex;justify-content:space-between;align-items:center">
+    <a href="{{ post.url | relative_url }}" style="font-size:15px;color:#1a1a2e;text-decoration:none;font-weight:500">{{ post.title }}</a>
+    <span style="font-size:12px;color:#aaa">{{ post.date | date: "%d %b %Y" }}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% endfor %}

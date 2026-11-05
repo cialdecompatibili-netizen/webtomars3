@@ -1,0 +1,15 @@
+{%- comment -%}
+  Nome sito dinamico, nessun valore fisso. Priorita': dominio personalizzato (CNAME) > nome del repo.
+  Imposta la variabile `site_name`. Uso: {%- include site-name.html -%} poi {{ site_name }}
+  Su GitHub Pages site.github.url vale il dominio personalizzato se c'e' il CNAME, altrimenti owner.github.io/repo.
+{%- endcomment -%}
+{%- assign _sn_url = include.url | default: site.github.url | default: site.url -%}
+{%- assign _sn_host = _sn_url | remove: 'https://' | remove: 'http://' | split: '/' | first | remove_first: 'www.' -%}
+{%- if _sn_host == nil or _sn_host == '' -%}
+  {%- assign site_name = include.repo | default: site.github.repository_name | default: site.title | default: 'Sito' -%}
+{%- elsif _sn_host contains '.github.io' -%}
+  {%- assign site_name = include.repo | default: site.github.repository_name | default: _sn_host -%}
+{%- else -%}
+  {%- assign site_name = _sn_host -%}
+{%- endif -%}
+{%- comment -%} NON riaggiungere un override da site.brand: il dominio (o il repo) e' sempre il master del nome sito. {%- endcomment -%}

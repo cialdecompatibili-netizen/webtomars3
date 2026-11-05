@@ -1,0 +1,42 @@
+---
+layout: null
+sitemap: false
+---
+{%- comment -%}
+  SITEMAP MULTILINGUA (sostituisce quella automatica di jekyll-sitemap: se esiste questo file il plugin non genera la sua).
+  - esclude noindex, "copia" (tr: copia), 404, admin e file non-pagina
+  - per ogni pagina con ref elenca le altre lingue gia' tradotte (xhtml:link hreflang), x-default = lingua base
+  Lento solo con migliaia di pagine (cerca le alternative per ref a ogni pagina).
+{%- endcomment -%}
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+{%- assign ml_items = site.pages -%}
+{%- assign ml_colls = site.collections | where: "output", true -%}
+{%- for c in ml_colls -%}{%- assign ml_items = ml_items | concat: c.docs -%}{%- endfor -%}
+{%- for p in ml_items -%}
+{%- if p.sitemap == false or p.noindex or p.tr == 'copia' or p.url == nil -%}{%- continue -%}{%- endif -%}
+{%- if p.url contains '/admin/' or p.url == '/404.html' -%}{%- continue -%}{%- endif -%}
+{%- assign ml_last = p.url | slice: -1 -%}
+{%- assign ml_ext = p.url | slice: -5, 5 -%}
+{%- if ml_last != '/' and ml_ext != '.html' -%}{%- continue -%}{%- endif %}
+  <url>
+    <loc>{{ p.url | absolute_url | xml_escape }}</loc>
+{%- if p.last_modified_at or p.date %}
+    <lastmod>{{ p.last_modified_at | default: p.date | date_to_xmlschema }}</lastmod>
+{%- endif -%}
+{%- if p.ref -%}
+{%- assign ml_g = ml_items | where: "ref", p.ref -%}
+{%- if ml_g.size > 1 -%}
+{%- for a in ml_g -%}
+{%- if a.tr == 'copia' or a.noindex -%}{%- continue -%}{%- endif -%}
+{%- assign ml_al = a.lang | default: site.default_lang %}
+    <xhtml:link rel="alternate" hreflang="{{ ml_al }}" href="{{ a.url | absolute_url | xml_escape }}"/>
+{%- if ml_al == site.default_lang %}
+    <xhtml:link rel="alternate" hreflang="x-default" href="{{ a.url | absolute_url | xml_escape }}"/>
+{%- endif -%}
+{%- endfor -%}
+{%- endif -%}
+{%- endif %}
+  </url>
+{%- endfor %}
+</urlset>

@@ -1,0 +1,6 @@
+- f: "colline-panorama"
+  cap: "Foto di esempio"
+  t: [team]
+  team: true
+  w: 1400
+  h: 935

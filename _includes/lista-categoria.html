@@ -1,0 +1,107 @@
+{%- comment -%}
+Elenco articoli di UNA categoria, stesso aspetto del blog (immagine, pillola, titolo, estratto, data).
+Uso: {% include lista-categoria.html cat="Attualità" %}  (nelle pagine _pages/cat-*.md, campo categoria:)
+Cosa legge: articoli della lingua della pagina (site.posts where lang), descrizione da _data/categorie.json (nome = categoria).
+NON toccare: gli attributi data-pg* abilitano la paginazione del sito (assets/js/paginazione.js).
+{%- endcomment -%}
+{%- assign cat_nome = include.cat -%}
+{%- assign all_mode = false -%}{%- unless cat_nome and cat_nome != "" -%}{%- assign all_mode = true -%}{%- endunless -%}
+{%- assign L = page.lang | default: "it" -%}
+{%- if L == "en" -%}
+  {%- assign t_topics = "Topics" -%}{%- assign t_one = "article" -%}{%- assign t_many = "articles" -%}
+  {%- assign t_other = "Other topics" -%}{%- assign t_read = "Read the article" -%}{%- assign t_min = "min read" -%}
+  {%- assign t_all = "All" -%}{%- assign t_blogdesc = "All the articles from the blog." -%}
+  {%- assign t_empty = "There are no articles here yet." -%}{%- assign t_goblog = "Go to the blog" -%}
+  {%- assign mesi = "January,February,March,April,May,June,July,August,September,October,November,December" | split: "," -%}
+{%- else -%}
+  {%- assign t_topics = "Argomenti" -%}{%- assign t_one = "articolo" -%}{%- assign t_many = "articoli" -%}
+  {%- assign t_other = "Altri argomenti" -%}{%- assign t_read = "Leggi l'articolo" -%}{%- assign t_min = "min di lettura" -%}
+  {%- assign t_all = "Tutti" -%}{%- assign t_blogdesc = "Tutti gli articoli del blog." -%}
+  {%- assign t_empty = "Qui non ci sono ancora articoli." -%}{%- assign t_goblog = "Vai al blog" -%}
+  {%- assign mesi = "gennaio,febbraio,marzo,aprile,maggio,giugno,luglio,agosto,settembre,ottobre,novembre,dicembre" | split: "," -%}
+{%- endif -%}
+{%- assign posts_l = site.posts | where: "lang", page.lang -%}
+{%- assign cdat_all = site.data.i18n[L].categorie | default: site.data.categorie -%}
+{%- assign cdata = cdat_all | where: "nome", cat_nome | first -%}
+{%- assign n = 0 -%}
+{%- for p in posts_l -%}{%- if all_mode or p.categories contains cat_nome -%}{%- assign n = n | plus: 1 -%}{%- endif -%}{%- endfor -%}
+<style>
+#page-title{display:none}
+.cl{--cl-ink:#14181f;--cl-mute:#5d6673;--cl-line:#e3e6ea;--cl-acc:var(--t-accent,#1f3a5f);max-width:1080px;margin:0 auto;color:var(--cl-ink)}
+.cl a{text-decoration:none}
+.cl-crumb{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cl-mute);margin:0 0 1rem}
+.cl-crumb a{color:var(--cl-acc)}
+.cl-head{padding-bottom:1.8rem;border-bottom:1px solid var(--cl-line);margin-bottom:1rem}
+.cl-h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(2rem,4.2vw,3rem);font-weight:500;line-height:1.1;margin:0 0 .7rem}
+.cl-desc{font-size:1.05rem;line-height:1.7;color:var(--cl-mute);max-width:46rem;margin:0 0 .8rem}
+.cl-count{font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cl-acc)}
+.cl-topics{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.2rem}
+.cl-topics a{padding:.35rem .9rem;border:1px solid var(--cl-line);border-radius:999px;font-size:.85rem;color:var(--cl-ink)}
+.cl-topics a:hover{border-color:var(--cl-acc);color:var(--cl-acc)}
+.cl-topics a.on{background:var(--cl-acc);border-color:var(--cl-acc);color:#fff}
+.cl-list{list-style:none;padding:0;margin:1.2rem 0 0;display:flex;flex-direction:column;gap:.3rem}
+.cl-item{position:relative;display:flex;gap:1.5rem;align-items:stretch;padding:0;overflow:hidden;background:#fff;border:1px solid var(--cl-line);border-radius:14px;transition:border-color .25s,box-shadow .25s,transform .25s}
+.cl-item:hover,.cl-item:focus-within{border-color:var(--cl-acc);box-shadow:0 0 0 1px var(--cl-acc),0 0 18px 2px color-mix(in srgb,var(--cl-acc) 45%,transparent),0 8px 24px rgba(30,40,80,.12);transform:translateY(-1px)}
+
+.cl-img{position:relative;flex:0 0 clamp(240px,38%,400px);min-height:200px;overflow:hidden;background:#ece8e1}
+.cl-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
+.cl-item:hover .cl-img img{transform:scale(1.04)}
+.cl-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:.5rem;padding:1rem 1.4rem 1rem 0}
+.cl-title::after{content:"";position:absolute;inset:0;z-index:1}
+.cl-more{position:relative;z-index:2}
+.cl-kick{font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cl-acc)}
+.cl-title{font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.15rem,2.2vw,1.5rem);font-weight:500;line-height:1.3;color:var(--cl-ink)}
+.cl-title:hover{color:var(--cl-acc)}
+.cl-ex{font-size:.97rem;line-height:1.75;color:var(--cl-mute);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cl-meta{font-size:.78rem;color:#8a929e}
+.cl-more{align-self:flex-start;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cl-acc)}
+.cl-empty{padding:2.5rem 0;color:var(--cl-mute)}
+@media(max-width:700px){.cl-item{flex-direction:column;gap:0}.cl-img{flex:none;width:100%;min-height:0;aspect-ratio:16/10}.cl-body{padding:1rem}}
+</style>
+
+<div class="cl">
+  <header class="cl-head">
+    {%- unless all_mode %}
+    <p class="cl-crumb"><a href="{% include url-ref.html ref="blog" %}">Blog</a> &rsaquo; {{ cat_nome }}</p>
+    {%- endunless %}
+    <h1 class="cl-h1">{% if all_mode %}Blog{% else %}{{ cat_nome }}{% endif %}</h1>
+    {%- if all_mode %}
+    <p class="cl-desc">{{ t_blogdesc }}</p>
+    {%- elsif cdata.descrizione and cdata.descrizione != "" %}
+    <p class="cl-desc">{{ cdata.descrizione | strip_html }}</p>
+    {%- endif %}
+    <span class="cl-count">{{ n }} {% if n == 1 %}{{ t_one }}{% else %}{{ t_many }}{% endif %}</span>
+    <nav class="cl-topics" aria-label="{{ t_other }}">
+      <a href="{% include url-ref.html ref="blog" %}"{% if all_mode %} class="on" aria-current="page"{% endif %}>{{ t_all }}</a>
+      {%- assign cats_all = posts_l | map: "categories" | join: "," | split: "," | uniq | sort -%}
+      {%- for c in cats_all -%}
+      {%- assign cp = site.pages | where: "categoria", c | first -%}
+      {%- if cp %}<a href="{{ cp.url | relative_url }}"{% if c == cat_nome %} class="on" aria-current="page"{% endif %}>{{ c }}</a>{% endif -%}
+      {%- endfor %}
+    </nav>
+  </header>
+
+  {%- if n == 0 %}
+  <p class="cl-empty">{{ t_empty }} <a href="{% include url-ref.html ref="blog" %}">{{ t_goblog }}</a>.</p>
+  {%- else %}
+  <ul class="cl-list" data-pg data-pg-item="li.cl-item" data-per="{{ site.per_page | default: 20 }}">
+    {%- for p in posts_l -%}
+    {%- if all_mode or p.categories contains cat_nome -%}
+    {%- assign m = p.date | date: "%-m" | minus: 1 -%}
+    {%- assign kick = cat_nome -%}
+    {%- if all_mode -%}{%- assign pcs = p.categories | where_exp: "c", "c != page.lang" -%}{%- assign kick = pcs | first -%}{%- endif %}
+    <li class="cl-item">
+      <a class="cl-img" href="{{ p.url | relative_url }}" tabindex="-1" aria-hidden="true">{% if p.header.teaser %}<img src="{{ p.header.teaser | relative_url }}" alt="" loading="lazy">{% endif %}</a>
+      <div class="cl-body">
+        <span class="cl-kick">{{ kick }}</span>
+        <a class="cl-title" href="{{ p.url | relative_url }}">{{ p.title }}</a>
+        <div class="cl-ex">{{ p.excerpt | strip_html | strip_newlines | truncate: 220 }}</div>
+        <div class="cl-meta">{% if L == "en" %}{{ mesi[m] }} {{ p.date | date: "%-d, %Y" }}{% else %}{{ p.date | date: "%-d" }} {{ mesi[m] }} {{ p.date | date: "%Y" }}{% endif %} · {{ p.content | number_of_words | divided_by: 200 | plus: 1 }} {{ t_min }}</div>
+        <a class="cl-more" href="{{ p.url | relative_url }}">{{ t_read }} &rarr;</a>
+      </div>
+    </li>
+    {%- endif -%}
+    {%- endfor %}
+  </ul>
+  {%- endif %}
+</div>

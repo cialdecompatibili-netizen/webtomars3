@@ -1,0 +1,25 @@
+{%- comment -%}
+  =====================================================================================
+  lingue-attive.html  -  RILEVAMENTO AUTOMATICO DELLE LINGUE (nessun codice da toccare)
+  Produce la variabile `lg_arr` = elenco codici lingua: default_lang + `languages:` del
+  config + OGNI cartella alla radice con nome-lingua (xx o xx-yy) che contiene pagine.
+  Cosi' basta clonare/rinominare una cartella (es. en -> de): la bandiera compare da sola.
+  Uso:  {%- include lingue-attive.html -%}  poi  {%- for l in lg_arr -%} ... {%- endfor -%}
+  ATTENZIONE: la cartella e' la fonte di verita' (non il campo `lang:` dei file, che dopo un
+  clone puo' essere vecchio). L'admin > Lingue poi normalizza config e front matter.
+  Il nome mostrato viene da _data/languages.yml (se manca, si vede il codice).
+  =====================================================================================
+{%- endcomment -%}
+{%- assign lg_arr = site.default_lang | split: ',' -%}
+{%- if site.languages -%}{%- assign lg_arr = lg_arr | concat: site.languages -%}{%- endif -%}
+{%- for p in site.pages -%}
+  {%- assign lg_seg = p.path | split: '/' -%}
+  {%- if lg_seg.size > 1 -%}
+    {%- assign lg_dir = lg_seg[0] -%}
+    {%- if lg_dir.size == 2 or lg_dir.size == 5 and lg_dir contains '-' -%}
+      {%- assign lg_one = lg_dir | split: ',' -%}
+      {%- assign lg_arr = lg_arr | concat: lg_one -%}
+    {%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- assign lg_arr = lg_arr | uniq -%}

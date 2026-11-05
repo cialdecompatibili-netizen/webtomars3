@@ -1,0 +1,56 @@
+{%- comment -%}
+GUIDA-SVILUPPO: FAQ + dati strutturati (JSON-LD Service e FAQPage) delle pagine servizio. Le domande vengono dal front matter `faq:` (q/a). Risposte in TESTO SEMPLICE: passano da jsonify, niente HTML. Dati strutturati non validi = avvisi in Search Console: dopo modifiche controlla il JSON-LD nel sorgente della pagina.
+{%- endcomment -%}
+{%- include site-name.html -%}
+{%- comment -%}
+  FAQ + dati strutturati (Service e FAQPage) delle pagine servizio.
+  Le domande stanno nel front matter della pagina:
+    faq:
+      - q: "Domanda?"
+        a: "Risposta in testo semplice."
+  Inserito in automatico da _layouts/single.html per la collection servizi.
+{%- endcomment -%}
+{%- assign sv_desc = page.seo_description | default: page.description | default: page.excerpt | strip_html | normalize_whitespace -%}
+{%- if page.faq and page.faq.size > 0 -%}
+<section class="sv-faq" id="domande-frequenti">
+  <h2>Domande frequenti</h2>
+  {%- for f in page.faq %}
+  <details>
+    <summary>{{ f.q }}</summary>
+    <p>{{ f.a }}</p>
+  </details>
+  {%- endfor %}
+</section>
+{%- endif -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Service",
+      "name": {{ page.title | jsonify }},
+      "description": {{ sv_desc | jsonify }},
+      "url": {{ page.url | absolute_url | jsonify }},
+      "serviceType": {{ page.title | jsonify }},
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": {{ site_name | jsonify }},
+        "url": {{ site.url | append: site.baseurl | jsonify }},
+        "telephone": {% if site.whatsapp != "" %}"+39{{ site.whatsapp | remove_first: '39' }}"{% else %}null{% endif %}
+      }
+    }{% if page.faq and page.faq.size > 0 %},
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {%- for f in page.faq %}
+        {
+          "@type": "Question",
+          "name": {{ f.q | jsonify }},
+          "acceptedAnswer": { "@type": "Answer", "text": {{ f.a | jsonify }} }
+        }{% unless forloop.last %},{% endunless %}
+        {%- endfor %}
+      ]
+    }{% endif %}
+  ]
+}
+</script>

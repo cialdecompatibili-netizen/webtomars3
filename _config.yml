@@ -1,0 +1,201 @@
+# =====================================================================================
+# _config.yml  -  UNICO PUNTO DA CAMBIARE PER CLONARE IL TEMPLATE SU UN NUOVO SITO
+# (mistraltemplate1, vedi CLAUDE.md e PROGETTO_TEMPLATE.md)
+#
+# REGOLE D'ORO (leggere prima di toccare)
+#  - NON scrivere qui `url:` e `baseurl:`: su GitHub Pages li imposta da solo (owner.github.io/repo
+#    oppure dominio personalizzato da CNAME). Il sito e l'admin si adattano senza valori fissi.
+#    Eccezione: serve una build locale con sottocartella -> usare `--baseurl` da riga di comando.
+#  - Un valore vuoto ("") significa "funzione spenta", mai "errore": i layout controllano
+#    sempre se il campo e' pieno prima di usarlo.
+#  - L'admin (admin/index.html) riscrive alcune parti di questo file (sezione LANG-DEFAULTS e
+#    campi lingua): non cambiare a mano il commento "LANG-DEFAULTS", l'admin lo cerca per
+#    inserire le nuove lingue.
+#  - Dopo ogni modifica a questo file GitHub Pages ricostruisce tutto: nessuna anteprima locale
+#    (la build locale non parte su questo PC), si controlla il sito online.
+# =====================================================================================
+
+# --- MULTILINGUA (dettagli: docs/MULTILINGUA.md) ---------------------------------------
+# default_lang = lingua alla radice (/). Le altre stanno in /xx/ e le crea l'admin > Lingue.
+# languages = elenco lingue attive: sono i nomi delle cartelle (it alla radice, en in /en/).
+locale: "it"
+default_lang: it
+languages: [it, en]
+
+# --- IDENTITA' DEL SITO (da cambiare per ogni clone) -----------------------------------
+# NOME SITO (menu in alto, footer, SEO): AUTOMATICO, calcolato da _includes/site-name.html.
+#   dominio personalizzato (CNAME su GitHub Pages) > nome del repo. Qui NON si scrive.
+# description: testo SEO di default (meta description).
+# "brand" non e' piu' letto da nessuno: lasciato vuoto solo per compatibilita' con vecchi cloni/admin.
+brand: "Web to Mars"
+related_posts: 3
+# per_page = elementi per pagina in TUTTE le liste (admin e sito: blog, negozio, pagina categoria). Si cambia da admin > Impostazioni.
+# Il sito impagina con assets/js/paginazione.js (attributo data-per). Valori dell'admin: 10, 20, 50, 100, 200, 500.
+per_page: 20
+email: ""
+description: "Descrizione breve del sito (compare nei motori di ricerca)."
+
+# --- TEMA (Minimal Mistakes, caricato da remoto) ----------------------------------------
+# I COLORI veri del sito NON stanno qui ma in _data/tema.json (accento, menu, testo).
+minimal_mistakes_skin: default
+search: true
+
+# SEO globale
+author:
+  name: "Nome autore"
+  avatar: "/assets/images/autore-segnaposto.svg"
+  bio: "Scrivi qui una breve presentazione dell'autore o del sito: chi sei, di cosa ti occupi e come contattarti."
+  links:
+    - label: "Contatti"
+      icon: "fas fa-fw fa-envelope"
+      url: "/contatti/"
+
+social:
+  links: []
+
+markdown: kramdown
+remote_theme: mmistakes/minimal-mistakes
+
+# File/cartelle NON pubblicati nel sito (restano nella repo: l'admin li legge via API GitHub).
+# ATTENZIONE: NON aggiungere version.json ne' template-map.json: l'admin li legge anche via fetch dal sito.
+exclude:
+  - vendor
+  - docs
+  - automation
+  - CLAUDE.md
+  - PROGETTO_TEMPLATE.md
+  - README.md
+
+# Permalink di default degli articoli: /blog/categoria/titolo/. Ripiego: l'indirizzo vero lo scrive
+# automation/permalink_articoli.py nel front matter (categoria senza accenti, /en/blog/... per le lingue).
+permalink: /blog/:categories/:title/
+
+timezone:
+
+# Pubblica anche i post con data futura (senza questo Jekyll li nasconde e l'articolo "sparisce")
+future: true
+# --- COLLEZIONI -------------------------------------------------------------------------
+# negozio  -> pagine prodotto/categoria dello shop NUOVO (dati in _data/catalogo.json), layout negozio-*
+# products -> shop VECCHIO (output:false = spento), gestito da admin > Prodotti
+# servizi / progetti -> collezioni opzionali (cartelle _servizi/ e _progetti/ da creare se servono,
+#                       gestite da admin > Servizi / Progetti). Se la cartella non esiste: nessun effetto.
+collections:
+  negozio:
+    output: true
+    permalink: /negozio/:name/
+  # GUIDA-SVILUPPO: `products` = shop VECCHIO (layout product, output:false = nessuna pagina generata). Lo shop NUOVO e' `negozio` qui sopra.
+  products:
+    output: false
+    permalink: /shop/:name/
+  servizi:
+    output: true
+    permalink: /servizi/:name/
+  progetti:
+    output: true
+    permalink: /progetti/:name/
+
+# _pages/ contiene le pagine del sito (il tema non le vede se non e' elencata qui).
+include:
+  - _pages
+
+plugins:
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jemoji
+  - jekyll-include-cache
+
+footer:
+  links: []
+
+# --- DEFAULTS (front matter automatico per path/tipo) ----------------------------------
+# ORDINE IMPORTANTE: gli scope piu' specifici (lingue) stanno SOPRA lo scope generale path "".
+defaults:
+  # LANG-DEFAULTS (l'admin aggiunge qui gli scope delle lingue: path = cartella lingua)
+  - scope:
+      path: "en"
+    values:
+      lang: en
+      locale: en
+  - scope:
+      path: "en"
+      type: pages
+    values:
+      layout: single
+  - scope:
+      path: "en"
+      type: posts
+    values:
+      layout: single
+      # Niente prefisso /en/: Jekyll aggiunge gia' la cartella (en) alle categorie degli articoli in en/_posts. Con /en/ davanti usciva /en/en/...
+      permalink: /:categories/:title/
+  # lingua di base: tutto cio' che non e' in una cartella lingua e' `it` (filtra elenchi e selettore)
+  - scope:
+      path: ""
+    values:
+      lang: it
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: single
+      author_profile: true
+      read_time: true
+      comments: true
+      share: true
+      related: true
+  - scope:
+      path: "_pages"
+      type: pages
+    values:
+      layout: single
+      author_profile: false
+  - scope:
+      path: ""
+      type: products
+    values:
+      layout: product
+      classes: wide
+  - scope:
+      path: ""
+      type: servizi
+    values:
+      layout: single
+      author_profile: false
+      read_time: true
+      share: true
+  - scope:
+      path: ""
+      type: progetti
+    values:
+      layout: single
+      author_profile: false
+
+category_archive:
+  type: liquid
+  path: /categories/
+tag_archive:
+  type: liquid
+  path: /tags/
+
+cms_homepage:
+
+# --- CONTATTI --------------------------------------------------------------------------
+# whatsapp: numero con prefisso, senza + e senza spazi (es. 393331234567).
+#   Vuoto + whatsapp_demo:true  = bottoni visibili ma inerti (solo per demo ai clienti)
+#   Vuoto + whatsapp_demo:false = bottoni nascosti (DEFAULT del template)
+# Chi lo usa: _includes/footer/custom.html (bottone fluttuante), servizio-cta.html, _pages/contatti.md
+whatsapp: ""
+whatsapp_demo: false
+# contact_endpoint: indirizzo del servizio (worker) che inoltra il modulo contatti. Vuoto = il modulo non appare.
+contact_endpoint: "https://contatti-form.evabomboniere.workers.dev"
+
+# --- SHOP (interruttore unico) ---------------------------------------------------------
+# ecommerce: true accende TUTTO lo shop: voce "Shop" nel menu (masthead.html), css/js del carrello
+# (head/custom.html), pagine /negozio/ /carrello/ /ordine/ /grazie/. false = nessuna traccia nel sito.
+# Prodotti e categorie: _data/catalogo.json (+ una pagina in _negozio/ per ognuno, vedi CLAUDE.md).
+ecommerce: false
+# ordini.tracker: URL dell'Apps Script che riceve gli ordini (SMOKE TEST, nessun pagamento).
+# Vuoto = il pulsante 'Invia richiesta d'ordine' resta spento.
+ordini:
+  tracker: ""

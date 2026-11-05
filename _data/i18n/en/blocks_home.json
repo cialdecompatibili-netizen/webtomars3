@@ -1,0 +1,44 @@
+[
+  {
+    "id": "hero",
+    "nome": "Hero",
+    "enabled": true,
+    "html": "<div class=\"gc\"><section class=\"ent-hero\"><div class=\"gc-wrap gc-hero-in\"><div><p class=\"gc-eyebrow\">Your field, in a few words</p><h1 class=\"gc-h1\">Say what you do in one line, <em>no jargon.</em></h1><p class=\"gc-lead\">Tell visitors in a couple of lines who you are, what problem you solve and for whom. Write it the way you would say it to a client in person: simple and direct.</p><div class=\"gc-act\"><a class=\"gc-btn gc-btn-a\" href=\"__BASEURL__/en/contact/\">Get in touch</a><a class=\"gc-btn gc-btn-o\" href=\"__BASEURL__/en/services/\">See what we do</a></div></div><div class=\"ent-cycle\"><div><b>Tell us what you need</b><span>No strings attached, even just to work out where to start</span></div><div><b>We suggest a solution</b><span>Clear, with timing and costs agreed upfront</span></div><div><b>We get to work</b><span>We keep you posted at every step</span></div><div><b>Delivery and support</b><span>We are still around afterwards</span></div></div></div></section></div>"
+  },
+  {
+    "id": "contesto",
+    "nome": "Context",
+    "enabled": true,
+    "html": "<div class=\"gc\"><section class=\"gc-sec\" id=\"contesto\"><div class=\"gc-wrap\"><p class=\"gc-eyebrow\">A few numbers</p><h2 class=\"gc-h2\">Why it matters</h2><p class=\"gc-lead\">One sentence setting the scene, with a real figure and its source. If you have none, remove this strip.</p><div class=\"ent-stats\"><div><b>00</b><span>Figure to add</span></div><div><b>00</b><span>Figure to add</span></div><div><b>00</b><span>Figure to add</span></div></div><p class=\"ent-src\">Source: say where the figure comes from.</p></div></section></div>"
+  },
+  {
+    "id": "servizi",
+    "nome": "Services",
+    "enabled": true,
+    "html": "<div class=\"gc\"><section class=\"gc-sec gc-soft\" id=\"servizi\"><div class=\"gc-wrap\"><p class=\"gc-eyebrow\">What we do</p><h2 class=\"gc-h2\">How we can help</h2><div class=\"gc-plat ent-4\"><div class=\"gc-pl ent-pl\"><span class=\"n\">01</span><b>The main service</b><ul><li>What it includes</li><li>Who it is for</li><li>What you get</li></ul></div><div class=\"gc-pl ent-pl\"><span class=\"n\">02</span><b>A second service</b><ul><li>What it includes</li><li>Who it is for</li><li>What you get</li></ul></div><div class=\"gc-pl ent-pl\"><span class=\"n\">03</span><b>A third service</b><ul><li>What it includes</li><li>Who it is for</li><li>What you get</li></ul></div><div class=\"gc-pl ent-pl\"><span class=\"n\">04</span><b>A fourth service</b><ul><li>What it includes</li><li>Who it is for</li><li>What you get</li></ul></div></div><p style=\"margin-top:1.6rem\"><a class=\"gc-link\" href=\"__BASEURL__/en/services/\">See all our services</a></p></div></section></div>"
+  },
+  {
+    "id": "perchi",
+    "nome": "Who we work for",
+    "enabled": true,
+    "html": "<div class=\"gc\"><section class=\"gc-sec\" id=\"perchi\"><div class=\"gc-wrap\"><p class=\"gc-eyebrow\">Who we help</p><h2 class=\"gc-h2\">Who works well with us</h2><div class=\"gc-plat ent-4\"><div class=\"gc-pl ent-pl\"><b>Individuals</b><ul><li>A situation where people often look for us</li><li>A typical request</li></ul></div><div class=\"gc-pl ent-pl\"><b>Professionals</b><ul><li>A situation where people often look for us</li><li>A typical request</li></ul></div><div class=\"gc-pl ent-pl\"><b>Small businesses</b><ul><li>A situation where people often look for us</li><li>A typical request</li></ul></div><div class=\"gc-pl ent-pl\"><b>Organisations and associations</b><ul><li>A situation where people often look for us</li><li>A typical request</li></ul></div></div></div></section></div>"
+  },
+  {
+    "id": "metodo",
+    "nome": "How we work",
+    "enabled": true,
+    "html": "<div class=\"gc\"><section class=\"gc-sec gc-soft\" id=\"metodo\"><div class=\"gc-wrap\"><p class=\"gc-eyebrow\">How we work</p><h2 class=\"gc-h2\">From the first call to delivery</h2><div class=\"gc-plat ent-4\"><div class=\"gc-pl\"><span class=\"n\">01</span><b>We talk</b><p>We listen to what you need, no commitment.</p></div><div class=\"gc-pl\"><span class=\"n\">02</span><b>We send a proposal</b><p>Clear timing and costs before we begin.</p></div><div class=\"gc-pl\"><span class=\"n\">03</span><b>We get to work</b><p>We keep you updated along the way.</p></div><div class=\"gc-pl\"><span class=\"n\">04</span><b>We deliver and stay available</b><p>If you need anything afterwards, we are here.</p></div></div></div></section></div>"
+  },
+  {
+    "id": "avvisi",
+    "nome": "Blog",
+    "enabled": true,
+    "html": "<div class=\"gc\"><section class=\"gc-sec\" id=\"avvisi\"><div class=\"gc-wrap gc-2c\"><div><p class=\"gc-eyebrow\">From the blog</p><h2 class=\"gc-h2\">Things you might find useful</h2><p class=\"gc-lead\">Short guides and news, written in plain language.</p><a class=\"gc-btn gc-btn-k\" href=\"__BASEURL__/en/blog/\">Go to the blog</a></div><div class=\"gc-pl\"><span class=\"n\">LATEST ARTICLE</span><b>The title of your latest article</b><p>A couple of lines to make people want to read it.</p></div></div></section></div>"
+  },
+  {
+    "id": "contatti",
+    "nome": "Contact",
+    "enabled": true,
+    "html": "<div class=\"gc\"><section class=\"gc-sec gc-dark\" id=\"contatti\"><div class=\"gc-wrap\"><p class=\"gc-eyebrow\">Contact</p><h2 class=\"gc-h2\">Let&#39;s talk</h2><p class=\"gc-lead\">Tell us what you need and we will get back to you as soon as we can.</p><a class=\"gc-btn\" href=\"__BASEURL__/en/contact/\">Get in touch</a></div></section></div>"
+  }
+]

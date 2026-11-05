@@ -1,0 +1,8 @@
+[
+  {
+    "id": "main",
+    "nome": "Contenuto",
+    "enabled": true,
+    "html": "<p>Testo di presentazione del sito. Si modifica dall'admin.</p>"
+  }
+]

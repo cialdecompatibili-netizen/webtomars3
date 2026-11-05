@@ -1,0 +1,27 @@
+{%- comment -%}
+  REDIRECT (layout dei file in redirect/*.html, creati dall'admin > Redirect o in automatico quando cambia un permalink).
+  Legge dal front matter: redirect_to = nuovo indirizzo (interno senza baseurl, oppure https://...).
+  Fa: meta refresh immediato + canonical verso il nuovo + noindex (come jekyll-redirect-from, ma senza plugin).
+  Layout STANDALONE: niente tema, niente header. Attenzione: una graffa chiusa dentro una variabile Liquid rompe la build.
+{%- endcomment -%}
+{%- assign rd_to = page.redirect_to | default: '/' -%}
+{%- assign rd_ext = rd_to | slice: 0, 4 -%}
+{%- if rd_ext == 'http' -%}
+  {%- assign rd_url = rd_to -%}
+  {%- assign rd_abs = rd_to -%}
+{%- else -%}
+  {%- assign rd_url = rd_to | relative_url -%}
+  {%- assign rd_abs = rd_to | absolute_url -%}
+{%- endif -%}
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.default_lang }}">
+<head>
+<meta charset="utf-8">
+<title>Redirect</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="{{ rd_abs }}">
+<meta http-equiv="refresh" content="0; url={{ rd_url }}">
+<script>location.replace({{ rd_url | jsonify }} + location.search + location.hash);</script>
+</head>
+<body><p><a href="{{ rd_url }}">{{ rd_url }}</a></p></body>
+</html>

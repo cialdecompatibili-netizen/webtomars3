@@ -1,0 +1,17 @@
+{%- comment -%}
+Categorie dell'articolo: link alla pagina della categoria (/blog/<categoria>/, /en/blog/<category>/), mai all'ancora di /categorie/.
+Sostituisce il file del tema. Le classi (page__taxonomy, page__taxonomy-item) servono a custom.html (categoria accanto al tempo di lettura).
+Ignora la categoria uguale al codice lingua (Jekyll la aggiunge per le cartelle en/).
+{%- endcomment -%}
+{%- assign tx_cats = page.categories | where_exp: "c", "c != page.lang" -%}
+{%- if tx_cats.size > 0 -%}
+<p class="page__taxonomy">
+  <strong>{% if page.lang == "en" %}Categories:{% else %}Categories:{% endif %} </strong>
+  <span itemprop="keywords">
+  {%- for c in tx_cats -%}
+    {%- assign tx_page = site.pages | where: "categoria", c | first -%}
+    <a href="{% if tx_page %}{{ tx_page.url | relative_url }}{% else %}{% include url-ref.html ref="blog" %}{% endif %}" class="page__taxonomy-item p-category" rel="tag">{{ c }}</a>{% unless forloop.last %}<span class="sep">, </span>{% endunless %}
+  {%- endfor -%}
+  </span>
+</p>
+{%- endif -%}

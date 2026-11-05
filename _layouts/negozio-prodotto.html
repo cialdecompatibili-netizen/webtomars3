@@ -1,0 +1,53 @@
+---
+layout: single
+classes: wide
+author_profile: false
+---
+{%- comment -%}
+GUIDA-SVILUPPO: SCHEDA PRODOTTO DEL NEGOZIO (porting da _plugins/ecommerce.rb > PaginaProdotto di ecommercealfolio1).
+PUNTI CRITICI
+1) Questo sito gira sul build "classico" di GitHub Pages: i plugin Ruby custom NON girano. Per questo la pagina di ogni prodotto e' un piccolo file
+   _negozio/<id>.md (front matter: layout, title, pid, permalink) creato/rimosso dall'admin (E-commerce > Prodotti). Il CONTENUTO viene sempre da _data/catalogo.json:
+   il file .md non contiene testi, solo l'id (pid). Le classi nz-* e gli attributi data-* sono letti da assets/js/carrello.js: non rinominarli. Prezzi in centesimi (catalogo.json).
+2) Prodotto assente dal catalogo o con visibile:false = messaggio "non disponibile" (la pagina esiste ma e' vuota). E-commerce spento = idem.
+3) Classi nz-* e data-* sono lette da assets/js/carrello.js: non rinominarle.
+{%- endcomment -%}
+{%- assign nz_lh = '/' -%}{%- if page.lang and page.lang != site.default_lang -%}{%- assign nz_lh = '/' | append: page.lang | append: '/' -%}{%- endif -%}
+{%- assign nz_p = site.data.catalogo.prodotti | where: 'id', page.pid | first -%}
+{%- if site.ecommerce != true or nz_p == nil or nz_p.visibile == false -%}
+<p>Questo prodotto non &egrave; disponibile. <a href="{% include shop-url.html k="shop" %}">Torna al negozio</a></p>
+{%- else -%}
+{%- assign nz_c = site.data.catalogo.categorie | where: 'id', nz_p.categoria | first -%}
+{%- assign nz_dig = false -%}{%- if nz_p.tipo == 'digitale' -%}{%- assign nz_dig = true -%}{%- endif -%}
+<div id="negozio" class="nz-pp" data-worker="">
+<nav class="nz-brd" aria-label="Percorso"><a href="{% include shop-url.html k="shop" %}">Negozio</a>{% if nz_c %} &rsaquo; <a href="{% include shop-url.html k="cat" id=nz_c.id %}">{{ nz_c.tr[page.lang].nome | default: nz_c.nome }}</a>{% endif %} &rsaquo; <span>{{ nz_p.tr[page.lang].nome | default: nz_p.nome }}</span></nav>
+<div class="nz-pp-grid">
+<div class="nz-pp-media">
+{%- if nz_p.immagine and nz_p.immagine != '' -%}
+{%- capture nz_img -%}{% if nz_p.immagine contains '://' %}{{ nz_p.immagine }}{% else %}{{ '/' | append: nz_p.immagine | relative_url }}{% endif %}{%- endcapture -%}
+<div class="nz-pp-foto"><a href="{{ nz_img }}" data-lb="prodotto" data-cap="{{ nz_p.tr[page.lang].nome | default: nz_p.nome | escape }}" style="display:block;width:100%;height:100%;cursor:zoom-in"><img src="{{ nz_img }}" alt="{{ nz_p.tr[page.lang].nome | default: nz_p.nome | escape }}"></a></div>
+{%- else -%}
+<div class="nz-pp-foto nz-pp-ph" aria-hidden="true">{{ nz_p.icona }}</div>
+{%- endif -%}
+</div>
+<div class="nz-box nz-scheda nz-pp-info" data-id="{{ nz_p.id }}" data-nome="{{ nz_p.tr[page.lang].nome | default: nz_p.nome | escape }}" data-prezzo="{{ nz_p.prezzo_centesimi | default: 0 }}" data-tipo="{{ nz_p.tipo | default: 'fisico' }}" data-periodo="">
+<p class="nz-pp-badge">{% if nz_dig %}Prodotto digitale{% else %}Prodotto fisico{% endif %}</p>
+<p class="nz-prezzo nz-pp-prezzo fw-bold"></p>
+<p class="nz-pp-breve">{{ nz_p.tr[page.lang].descrizione | default: nz_p.descrizione | escape }}</p>
+<div class="nz-pp-acq">
+<div class="nz-step"><button type="button" class="nz-stp" data-d="-1" aria-label="Meno">&minus;</button><input type="number" class="nz-qta" min="1" max="20" value="1" aria-label="Quantit&agrave;"><button type="button" class="nz-stp" data-d="1" aria-label="Pi&ugrave;">+</button></div>
+<button type="button" class="btn btn-primary nz-add">Aggiungi al carrello</button>
+<span class="nz-ok" aria-live="polite"></span>
+</div>
+</div>
+</div>
+<section class="nz-pp-desc"><h2>Descrizione</h2>
+{%- if nz_p.descrizione_completa and nz_p.descrizione_completa != '' -%}
+<p>{{ nz_p.tr[page.lang].descrizione_completa | default: nz_p.descrizione_completa | strip | escape | newline_to_br }}</p>
+{%- else -%}
+<p>{{ nz_p.tr[page.lang].descrizione | default: nz_p.descrizione | escape }}</p>
+{%- endif -%}
+</section>
+<p class="nz-pp-torna"><a href="{% include shop-url.html k="shop" %}">&larr; Torna al negozio</a> &middot; <a href="{{ nz_lh | append: 'carrello/' | relative_url }}">Vai al carrello</a></p>
+</div>
+{%- endif -%}

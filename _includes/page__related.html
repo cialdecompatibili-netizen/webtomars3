@@ -1,0 +1,21 @@
+{%- comment -%}
+GUIDA-SVILUPPO: "Potrebbe interessarti" in fondo agli articoli (versione locale dell'include del tema). Mostra gli articoli della STESSA lingua (posts_l). Il titolo viene da ui-text.yml (related_label);
+head/custom.html lo traduce a runtime. Lo stile delle card e' in post-sidebar.html e main.scss.
+{%- endcomment -%}
+{%- assign posts_l = site.posts | where: "lang", page.lang -%}
+{% if page.related %}
+<div class="page__related">
+  <h2 class="page__related-title">{{ site.data.ui-text[site.locale].related_label | default: "You May Also Enjoy" }}</h2>
+  <div class="grid__wrapper">
+    {% assign count = 0 %}
+    {% for post in posts_l %}
+      {% unless post.id == page.id %}
+        {% if count < 3 %}
+          {% assign count = count | plus: 1 %}
+          {% include archive-single.html type="grid" %}
+        {% endif %}
+      {% endunless %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}

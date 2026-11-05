@@ -1,0 +1,400 @@
+/* GUIDA-SVILUPPO: CSS dello shop (lista a righe, filtri, carrello, scheda prodotto). Classi nz-* e #negozio sono usate da carrello.js, shop-i18n.js e dai layout negozio-*: non rinominare. In fondo al file i blocchi piu' recenti: a parita' di specificita' vince l'ultima regola (le foto grandi della lista sono nell'ultimo blocco). */
+/* Negozio (E-commerce): elenco prodotti a righe, filtro categorie, carrello. Colori dal tema (variabili del sito, con ripiego).
+   PUNTO CRITICO: e' un file statico caricato con <link> da _pages/negozio.md e dalle pagine prodotto (_plugins/ecommerce.rb). */
+:root, #negozio { --nz-r: 6px; --nz-rl: 10px; --nz-bordo: #dee2e6; --nz-sfondo: var(--global-card-bg-color, #fff); --nz-testo: var(--t-text, #212529); --nz-tema: var(--t-accent-dark, #3f6b00); --nz-muto: var(--global-text-color-light, #6c757d); }
+#negozio .nz-pills { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+#negozio .nz-pill { border: 1px solid var(--nz-bordo); background: transparent; color: var(--nz-testo); border-radius: var(--nz-r); padding: .25rem .8rem; cursor: pointer; font-size: .9rem; }
+#negozio .nz-pill.on { background: var(--nz-tema); border-color: var(--nz-tema); color: #fff; }
+#negozio .nz-lista { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 2rem; }
+#negozio .nz-riga { display: flex; gap: 1rem; align-items: center; padding: .9rem 1rem; border: 1px solid var(--nz-bordo); border-radius: var(--nz-rl); background: var(--nz-sfondo); }
+#negozio .nz-riga[hidden] { display: none; }
+#negozio .nz-icona { flex: 0 0 3.2rem; height: 3.2rem; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border-radius: var(--nz-rl); border: 1px solid var(--nz-bordo); }
+#negozio .nz-testo { flex: 1 1 auto; min-width: 0; }
+#negozio .nz-testo h3 { margin: 0 0 .15rem; font-size: 1.1rem; }
+#negozio .nz-testo h3 a { color: var(--nz-testo); text-decoration: none; }
+#negozio .nz-testo h3 a:hover { color: var(--nz-tema); }
+#negozio .nz-testo p { margin: 0; }
+#negozio .nz-cat { color: var(--nz-muto); font-size: .8rem; }
+#negozio .nz-prezzo { white-space: nowrap; }
+#negozio .nz-azioni { display: flex; gap: .5rem; align-items: flex-end; flex-wrap: wrap; justify-content: flex-end; }
+#negozio .nz-azioni label { margin: 0; font-size: .8rem; }
+#negozio .nz-qta { width: 4.5rem; }
+#negozio .nz-ok { color: var(--nz-tema); font-size: .85rem; align-self: center; }
+#negozio .nz-tab { width: 100%; margin-bottom: 1rem; }
+#negozio .nz-tab td, #negozio .nz-tab th { padding: .4rem .5rem; vertical-align: middle; border-bottom: 1px solid var(--nz-bordo); }
+#negozio .nz-q { display: inline-flex; gap: .35rem; align-items: center; }
+#negozio .nz-totale { font-size: 1.25rem; font-weight: 700; }
+@media (max-width: 640px) {
+  #negozio .nz-riga { flex-wrap: wrap; }
+  #negozio .nz-azioni { width: 100%; justify-content: flex-start; }
+}
+
+/* ===== CARRELLO NEL MENU (adattato al masthead di questo sito: <li class="nv__item nv__tools"> in _includes/masthead.html) =====
+   PUNTI CRITICI: (1) le regole fuori da #negozio valgono su TUTTE le pagine: solo classi .nz-*. (2) il <dialog> e' creato da carrello.js e finisce in <body>: per questo le variabili --nz-* stanno anche su :root.
+   (3) l'anteprima .nz-prev si apre verso sinistra (right:0) per non uscire dallo schermo; carrello.js > tieniDentro() la sposta con un transform inline. */
+.nz-cartw { position: relative; display: flex; align-items: center; }
+.nz-prev { left: auto; right: 0; }
+.nz-cart { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .45rem; line-height: 1; color: var(--nz-testo); text-decoration: none; }
+.nz-cart:hover, .nz-cart:focus-visible { color: var(--nz-tema); text-decoration: none; }
+.nz-cart svg { width: 1.4rem; height: 1.4rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nz-cart .nz-n { font-size: .9rem; font-variant-numeric: tabular-nums; }
+/* Mobile: il carrello e' spostato da menu.js nella barra, a sinistra delle 3 lineette (stesso elemento .nz-cartw, non un duplicato). */
+@media (max-width: 767.98px) {
+  .nv__inner > .nz-cartw { margin-left: auto; }
+  .nv__inner > .nz-cartw + .nv__toggle { margin-left: 0; }
+}
+.nz-cart.nz-pieno { color: var(--nz-tema); }
+.nz-cart.nz-bump svg { animation: nz-bump .45s ease; }
+@keyframes nz-bump { 30% { transform: scale(1.35); } 60% { transform: scale(.92); } }
+@media (prefers-reduced-motion: reduce) { .nz-cart.nz-bump svg { animation: none; } }
+
+/* Finestra "prodotto aggiunto" (creata da carrello.js > apri()). Sta FUORI da #negozio: per questo usa classi globali nz-dlg*, nz-db* e le variabili
+   --nz-* definite su :root. Bottoni nz-db-*: stessa forma di quelli del carrello (pillola con contorno, si riempie al passaggio); verde = azione principale. */
+.nz-dialog { border: 1px solid var(--nz-bordo); border-radius: var(--nz-rl); padding: 0; background: var(--nz-sfondo); color: var(--nz-testo); width: min(30rem, calc(100% - 2rem)); box-shadow: 0 12px 40px rgba(0, 0, 0, .25); }
+.nz-dialog::backdrop { background: rgba(0, 0, 0, .45); }
+.nz-dlg { position: relative; padding: 1.25rem 1.25rem 1rem; }
+.nz-dlg h2 { margin: 0 2rem .9rem 0; font-size: 1.15rem; color: var(--nz-tema); }
+.nz-x { position: absolute; top: .45rem; right: .6rem; border: 0; background: transparent; font-size: 1.7rem; line-height: 1; color: var(--nz-muto); cursor: pointer; }
+.nz-x:hover { color: var(--nz-testo); }
+.nz-dlg-prod { display: flex; flex-direction: row; align-items: center; gap: .9rem; padding-bottom: .9rem; margin-bottom: .9rem; border-bottom: 1px solid var(--nz-bordo); }
+.nz-dlg-i { flex: 0 0 4rem; width: 4rem; height: 4rem; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--nz-bordo); border-radius: var(--nz-rl); font-size: 1.9rem; background: color-mix(in srgb, var(--nz-tema) 6%, var(--nz-sfondo)); }
+.nz-dlg-i img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.nz-dlg-t { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+.nz-dlg-t strong { overflow-wrap: anywhere; }
+.nz-dlg-t span { color: var(--nz-muto); font-size: .9rem; }
+.nz-dlg-tot p { margin: 0 0 .2rem; }
+.nz-dlg .nz-totale { font-size: 1.25rem; font-weight: 700; }
+.nz-dlg-az { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: flex-end; margin-top: 1.25rem; }
+/* Bottoni della finestra (come quelli del carrello): Continua lo shopping arancio con contorno, Vai al carrello verde pieno (azione principale) */
+.nz-db { --c: var(--nz-tema); display: inline-flex; align-items: center; justify-content: center; height: 3rem; padding: 0 1.5rem; margin: 0; font-size: 1rem; font-weight: 500; letter-spacing: .01em; text-decoration: none; color: var(--c); background: transparent; border: 2px solid var(--c); border-radius: var(--nz-r); box-shadow: none; cursor: pointer; transition: background-color .15s, color .15s, box-shadow .15s; }
+.nz-db:hover, .nz-db:focus-visible { background: var(--c); color: #fff; text-decoration: none; }
+.nz-db:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent); }
+.nz-db:active { transform: translateY(1px); }
+.nz-db-continua { --c: #e8730c; }
+.nz-db-vai { --c: #1f9d55; background: var(--c); color: #fff; }
+.nz-db-vai:hover, .nz-db-vai:focus-visible { background: #17803f; border-color: #17803f; color: #fff; }
+@media (max-width: 575.98px) {
+  .nz-dlg-az { flex-direction: column-reverse; align-items: stretch; flex-wrap: nowrap; }
+  .nz-db { width: 100%; }
+}
+
+/* ATTENZIONE: carrello.js > tieniDentro() sposta .nz-prev con un transform inline per tenerlo dentro lo schermo: niente transform su .nz-prev qui.
+   La posizione base (left/right) dipende da dove sta l'icona nel menu: vedi il blocco MOBILE/DESKTOP in alto. */
+/* Anteprima al passaggio del mouse (.nz-prev, come .blockcart .body di PrestaShop). Solo con mouse (hover:hover) e da 576px; su touch il tap va alla pagina carrello.
+   Vuota (carrello a zero) = nessun contenuto, quindi non compare nemmeno il riquadro. */
+.nz-prev { display: none; position: absolute; top: 100%; left: 0; z-index: 1050; min-width: 17rem; max-width: 90vw; padding: .8rem 1rem; border: 1px solid var(--nz-bordo); border-radius: var(--nz-rl); background: var(--nz-sfondo); color: var(--nz-testo); box-shadow: 0 8px 28px rgba(0, 0, 0, .2); }
+.nz-prev ul { list-style: none; margin: 0 0 .6rem; padding: 0; }
+.nz-prev li { display: flex; justify-content: space-between; gap: 1rem; padding: .2rem 0; font-size: .9rem; }
+.nz-prev-tot { display: flex; justify-content: space-between; margin: 0 0 .7rem; padding-top: .5rem; border-top: 1px solid var(--nz-bordo); }
+@media (hover: hover) and (min-width: 576px) {
+  .nz-cartw:hover .nz-prev:not(:empty), .nz-cartw:focus-within .nz-prev:not(:empty) { display: block; }
+}
+/* RESPIRO DELL'ANTEPRIMA CARRELLO (popup sull'icona nel menu).
+   Perche' era "appiccicata": .nz-prev sta nel MENU, fuori da #negozio, quindi il pulsante .btn "Vai al carrello" non prendeva nessuno stile
+   (le regole .btn sono scoped su #negozio / #nz-carrello-pag / #nz-ordine-pag) e restava un link nudo attaccato al totale; in piu' ereditava
+   line-height e white-space dal menu. Qui ripristino tutto in modo esplicito. Non mettere transform su .nz-prev (lo usa carrello.js). */
+.nz-prev { margin-top: .4rem; padding: 1rem 1.15rem 1.1rem; min-width: 19rem; line-height: 1.45; font-size: .95rem; text-align: left; white-space: normal; }
+/* ponte invisibile sopra il popup: il mouse non esce dall'hover passando dall'icona al riquadro nonostante il margin-top */
+.nz-prev::before { content: ""; position: absolute; left: 0; right: 0; top: -.5rem; height: .5rem; }
+.nz-prev ul { margin: 0 0 .75rem; }
+.nz-prev li { gap: 1.25rem; padding: .4rem 0; border-bottom: 1px solid var(--nz-bordo); }
+.nz-prev li:last-child { border-bottom: 0; }
+.nz-prev-tot { margin: 0 0 1rem; padding-top: .8rem; font-size: 1rem; }
+.nz-prev .btn { display: block; box-sizing: border-box; width: 100%; padding: .65rem 1rem; border-radius: var(--nz-r); border: 1px solid var(--nz-tema); background: var(--nz-tema); color: #fff; text-align: center; text-decoration: none; font-weight: 600; line-height: 1.2; }
+.nz-prev .btn:hover, .nz-prev .btn:focus-visible { filter: brightness(1.12); color: #fff; text-decoration: none; }
+
+/* Carrello (/carrello/) e ordine a passi (/ordine/). Passo 2 (spedizione) compare solo con prodotti fisici (carrello.js). */
+.nz-steps { display: flex; gap: 1.5rem; list-style: none; padding: 0; margin: 0 0 1.5rem; border-bottom: 1px solid var(--nz-bordo); }
+.nz-steps li { padding: .6rem 0; opacity: .55; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.nz-steps li.on { opacity: 1; font-weight: 600; border-bottom-color: currentColor; }
+.nz-steps li.fatto { opacity: .85; }
+.nz-steps li.fatto .nz-sn::before { content: "\2713  "; }
+.nz-steps li[hidden], .nz-passo[hidden] { display: none; }
+.nz-passo { max-width: 480px; }
+.nz-err { color: #b3261e; min-height: 1.3em; margin: .25rem 0 .75rem; }
+.nz-az-passo { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.nz-riep { list-style: none; margin: 0 0 .75rem; padding: 0; }
+.nz-riep li { display: flex; justify-content: space-between; gap: 1rem; padding: .3rem 0; border-bottom: 1px solid var(--nz-bordo); }
+.nz-vai { margin-top: 1.5rem; }
+
+/* Pagina prodotto (stile PrestaShop recente, ma pulito): foto a sinistra, prezzo/breve/acquisto a destra, poi descrizione completa e dettagli. */
+#negozio .nz-icona { overflow: hidden; }
+#negozio .nz-icona img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.nz-brd { font-size: .85rem; color: var(--nz-muto); margin-bottom: 1.25rem; }
+.nz-brd a { color: inherit; }
+.nz-pp-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem; align-items: start; }
+@media (min-width: 768px) {
+  .nz-pp-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 3rem; }
+  .nz-pp-media { position: sticky; top: 5rem; }
+}
+.nz-pp-foto { aspect-ratio: 1 / 1; border-radius: var(--nz-rl); overflow: hidden; border: 1px solid var(--nz-bordo); background: color-mix(in srgb, var(--nz-tema) 6%, var(--nz-sfondo)); display: flex; align-items: center; justify-content: center; }
+.nz-pp-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.nz-pp-ph { font-size: clamp(5rem, 18vw, 9rem); }
+.nz-pp-badge { display: inline-block; font-size: .8rem; padding: .2rem .7rem; border: 1px solid var(--nz-bordo); border-radius: var(--nz-r); color: var(--nz-muto); margin: 0 0 .75rem; }
+.nz-pp-prezzo { font-size: 2rem; line-height: 1.1; margin: 0 0 1rem; }
+.nz-pp-breve { font-size: 1.05rem; margin-bottom: 1.5rem; }
+/* Acquisto: quantita' e bottone sulla stessa riga, stessa altezza, entrambi "pillola" leggeri. Bottone con solo contorno (si riempie al passaggio del mouse). */
+#negozio .nz-pp-acq { --nz-h: 3rem; display: flex; gap: .75rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1.25rem; }
+#negozio .nz-pp-acq label { display: flex; flex-direction: column; gap: .3rem; margin: 0; font-size: .75rem; letter-spacing: .02em; color: var(--nz-muto); }
+#negozio .nz-pp-acq .nz-qta { width: 5rem; height: var(--nz-h); padding: 0 .5rem; text-align: center; font-size: 1.05rem; color: var(--nz-testo); background: transparent; border: 1.5px solid var(--nz-bordo); border-radius: var(--nz-r); box-shadow: none; -moz-appearance: textfield; appearance: textfield; transition: border-color .15s, box-shadow .15s; }
+#negozio .nz-pp-acq .nz-qta::-webkit-outer-spin-button, #negozio .nz-pp-acq .nz-qta::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+#negozio .nz-pp-acq .nz-qta:hover { border-color: var(--nz-tema); }
+#negozio .nz-pp-acq .nz-qta:focus { outline: none; border-color: var(--nz-tema); box-shadow: 0 0 0 3px color-mix(in srgb, var(--nz-tema) 20%, transparent); }
+#negozio .nz-pp-acq .nz-add { flex: 1 1 12rem; height: var(--nz-h); padding: 0 1.5rem; font-size: 1rem; font-weight: 500; letter-spacing: .01em; color: var(--nz-tema); background: transparent; border: 1.5px solid var(--nz-tema); border-radius: var(--nz-r); box-shadow: none; transition: background-color .15s, color .15s, box-shadow .15s; }
+#negozio .nz-pp-acq .nz-add:hover { background: var(--nz-tema); color: #fff; }
+#negozio .nz-pp-acq .nz-add:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--nz-tema) 25%, transparent); }
+#negozio .nz-pp-acq .nz-add:active { transform: translateY(1px); }
+#negozio .nz-pp-acq .nz-ok { flex: 1 0 100%; align-self: auto; }
+.nz-pp-nota { color: var(--nz-muto); font-size: .9rem; margin: 0; }
+.nz-pp-desc, .nz-pp-det { width: 100%; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--nz-bordo); }
+.nz-pp-desc h2, .nz-pp-det h2 { font-size: 1.25rem; margin-bottom: 1rem; }
+.nz-pp-det dl { display: grid; grid-template-columns: 9rem 1fr; gap: .5rem 1rem; margin: 0; }
+.nz-pp-det dt { font-weight: 500; color: var(--nz-muto); }
+.nz-pp-det dd { margin: 0; }
+.nz-pp-torna { margin-top: 2.5rem; }
+
+/* Navigazione per categorie (stile WooCommerce): link categoria, pillole-link nelle pagine categoria, menu Negozio con prodotti. */
+#negozio .nz-cat a { color: inherit; text-decoration: none; border-bottom: 1px dotted currentColor; }
+#negozio .nz-cat a:hover { color: var(--nz-tema); }
+.nz-brd a:hover { color: var(--nz-tema); }
+#negozio .nz-cpill { display: inline-block; border: 1px solid var(--nz-bordo); color: var(--nz-testo); border-radius: var(--nz-r); padding: .25rem .8rem; font-size: .9rem; text-decoration: none; transition: border-color .15s, color .15s; }
+#negozio .nz-cpill:hover { border-color: var(--nz-tema); color: var(--nz-tema); }
+#negozio .nz-cpill.on { background: var(--nz-tema); border-color: var(--nz-tema); color: #fff; }
+#negozio .nz-cnt { color: var(--nz-muto); font-size: .9rem; margin: 0 0 1rem; }
+.nz-menu { max-height: 70vh; overflow-y: auto; min-width: 15rem; }
+.nz-menu .nz-catlink { font-weight: 500; }
+
+/* ===== LISTA PRODOTTI a schede (stile PrestaShop 1.6 / WooCommerce): foto grande, nome, prezzo, descrizione breve, quantita' con + e - e bottone.
+   Stesso markup in /negozio/ (_pages/negozio.md) e nelle pagine categoria (_plugins/ecommerce.rb, riga()): se cambi uno, cambia l'altro.
+   Il JS del carrello legge .nz-box/.nz-prezzo/.nz-qta/.nz-add e i bottoni .nz-stp (+/-): non cambiare quelle classi. */
+#negozio .nz-lista { gap: 1rem; }
+#negozio .nz-riga { display: grid; grid-template-columns: 11rem minmax(0, 1fr) 13.5rem; gap: 1.5rem; align-items: center; padding: 1rem; border-radius: var(--nz-rl); transition: box-shadow .15s, border-color .15s; }
+#negozio .nz-riga:hover { border-color: color-mix(in srgb, var(--nz-tema) 45%, var(--nz-bordo)); box-shadow: 0 6px 22px rgba(0, 0, 0, .07); }
+#negozio .nz-riga[hidden] { display: none; }
+#negozio .nz-riga .nz-icona { width: 100%; height: auto; aspect-ratio: 1 / 1; flex: none; font-size: 3.6rem; border-radius: var(--nz-rl); background: color-mix(in srgb, var(--nz-tema) 6%, var(--nz-sfondo)); }
+#negozio .nz-riga .nz-testo h3 { margin: .1rem 0 .35rem; font-size: 1.25rem; line-height: 1.25; }
+#negozio .nz-riga .nz-prezzo { font-size: 1.35rem; line-height: 1.2; margin: 0 0 .5rem; }
+#negozio .nz-riga .nz-breve { margin: 0; color: var(--nz-muto); font-size: .98rem; line-height: 1.5; }
+#negozio .nz-riga .nz-azioni { display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: .6rem; }
+#negozio .nz-riga .nz-ok { align-self: center; min-height: 1.2em; }
+
+/* Quantita' con + e -: pillola, stessa altezza del bottone (anche nella scheda prodotto) */
+#negozio .nz-step { display: inline-flex; align-items: center; justify-content: space-between; height: 3rem; border: 1.5px solid var(--nz-bordo); border-radius: var(--nz-r); background: transparent; transition: border-color .15s, box-shadow .15s; }
+#negozio .nz-step:hover { border-color: var(--nz-tema); }
+#negozio .nz-step:focus-within { border-color: var(--nz-tema); box-shadow: 0 0 0 3px color-mix(in srgb, var(--nz-tema) 20%, transparent); }
+#negozio .nz-step .nz-stp { flex: none; width: 2.7rem; height: 100%; padding: 0; border: 0; background: transparent; color: var(--nz-testo); font-size: 1.3rem; line-height: 1; border-radius: var(--nz-r); cursor: pointer; }
+#negozio .nz-step .nz-stp:hover { color: var(--nz-tema); }
+#negozio .nz-step .nz-stp:focus-visible { outline: none; color: var(--nz-tema); }
+#negozio .nz-step .nz-qta, #negozio .nz-step .nz-qta:hover, #negozio .nz-step .nz-qta:focus { flex: 1 1 auto; width: 2.6rem; min-width: 0; height: 100%; padding: 0; border: 0; border-radius: 0; box-shadow: none; outline: none; background: transparent; text-align: center; font-size: 1.05rem; color: var(--nz-testo); -moz-appearance: textfield; appearance: textfield; }
+#negozio .nz-step .nz-qta::-webkit-outer-spin-button, #negozio .nz-step .nz-qta::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* Bottone "Aggiungi al carrello" della lista: identico a quello della scheda prodotto (solo contorno, si riempie al passaggio) */
+#negozio .nz-azioni .nz-add { width: 100%; height: 3rem; padding: 0 1rem; font-size: 1rem; font-weight: 500; letter-spacing: .01em; color: var(--nz-tema); background: transparent; border: 1.5px solid var(--nz-tema); border-radius: var(--nz-r); box-shadow: none; transition: background-color .15s, color .15s, box-shadow .15s; }
+#negozio .nz-azioni .nz-add:hover { background: var(--nz-tema); color: #fff; }
+#negozio .nz-azioni .nz-add:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--nz-tema) 25%, transparent); }
+#negozio .nz-azioni .nz-add:active { transform: translateY(1px); }
+/* Scheda prodotto: la quantita' ora e' .nz-step (niente label) */
+#negozio .nz-pp-acq { align-items: center; }
+#negozio .nz-pp-acq .nz-step { width: 9rem; }
+
+@media (max-width: 767.98px) {
+  #negozio .nz-riga { grid-template-columns: 7.5rem minmax(0, 1fr); gap: 1rem; }
+  #negozio .nz-riga .nz-icona { font-size: 2.6rem; }
+  #negozio .nz-riga .nz-azioni { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+  #negozio .nz-riga .nz-azioni .nz-step { flex: 0 0 9rem; }
+  #negozio .nz-riga .nz-azioni .nz-add { flex: 1 1 auto; width: auto; }
+  #negozio .nz-riga .nz-ok { flex: 1 0 100%; }
+}
+@media (max-width: 420px) {
+  #negozio .nz-riga { grid-template-columns: 6rem minmax(0, 1fr); }
+  #negozio .nz-riga .nz-azioni { flex-wrap: wrap; }
+  #negozio .nz-riga .nz-azioni .nz-add { flex: 1 0 100%; }
+}
+
+#negozio .nz-riga .nz-azioni .nz-step { width: 100%; }
+#negozio .nz-riga .nz-azioni .nz-add { margin: 0; box-sizing: border-box; }
+@media (max-width: 767.98px) { #negozio .nz-riga .nz-azioni .nz-step { width: 9rem; } }
+
+/* ===== Bottoni del carrello (/carrello/): ordine Svuota (rosso) - Continua lo shopping (arancio) - Procedi all'ordine (verde pieno).
+   Svuota e Continua hanno il contorno colorato (si riempiono al passaggio), Procedi e' pieno: e' l'azione principale. Solo dentro #nz-carrello-pag. */
+#nz-carrello-pag .nz-az-carrello { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-top: 1.25rem; }
+#nz-carrello-pag .nz-b { --c: var(--nz-tema); display: inline-flex; align-items: center; justify-content: center; height: 3rem; padding: 0 1.5rem; margin: 0; font-size: 1rem; font-weight: 500; letter-spacing: .01em; text-decoration: none; color: var(--c); background: transparent; border: 2px solid var(--c); border-radius: var(--nz-r); box-shadow: none; cursor: pointer; transition: background-color .15s, color .15s, box-shadow .15s; }
+#nz-carrello-pag .nz-b:hover, #nz-carrello-pag .nz-b:focus-visible { background: var(--c); color: #fff; text-decoration: none; }
+#nz-carrello-pag .nz-b:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent); }
+#nz-carrello-pag .nz-b:active { transform: translateY(1px); }
+#nz-carrello-pag .nz-b-svuota { --c: #c62828; }
+#nz-carrello-pag .nz-b-continua { --c: #e8730c; }
+#nz-carrello-pag .nz-b-vai { --c: #1f9d55; background: var(--c); color: #fff; }
+#nz-carrello-pag .nz-b-vai:hover, #nz-carrello-pag .nz-b-vai:focus-visible { background: #17803f; border-color: #17803f; }
+/* Mobile: ordine invertito (in alto Procedi all'ordine, poi Continua lo shopping, in fondo Svuota il carrello). Su desktop resta Svuota - Continua - Procedi. */
+@media (max-width: 575.98px) {
+  #nz-carrello-pag .nz-az-carrello { flex-direction: column-reverse; align-items: stretch; flex-wrap: nowrap; }
+  #nz-carrello-pag .nz-b { flex: none; width: 100%; }
+}
+/* Prodotto nel carrello: miniatura + nome sono un unico link alla scheda prodotto */
+#nz-carrello-pag .nz-pr { display: inline-flex; align-items: center; gap: .75rem; color: inherit; text-decoration: none; }
+#nz-carrello-pag .nz-pr:hover .nz-pr-n, #nz-carrello-pag .nz-pr:focus-visible .nz-pr-n { text-decoration: underline; color: var(--nz-tema); }
+#nz-carrello-pag .nz-pr:focus-visible { outline: 2px solid color-mix(in srgb, var(--nz-tema) 50%, transparent); outline-offset: 3px; border-radius: var(--nz-r); }
+#nz-carrello-pag .nz-pr-i { flex: 0 0 3.2rem; width: 3.2rem; height: 3.2rem; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--nz-bordo); border-radius: var(--nz-r); font-size: 1.5rem; background: color-mix(in srgb, var(--nz-tema) 6%, var(--nz-sfondo)); }
+#nz-carrello-pag .nz-pr-i img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Anteprima del carrello nel menu: il nome del prodotto e' un link alla scheda */
+.nz-prev li a { color: inherit; text-decoration: none; }
+.nz-prev li a:hover, .nz-prev li a:focus-visible { text-decoration: underline; }
+
+/* ===== ORDINE (/ordine/): due colonne (form a passi + riepilogo fisso), passi a cerchietti, campi moderni, metodi di pagamento, bottoni come il carrello.
+   Tutto scoped su #nz-ordine-pag. Il JS (carrello.js) usa gli id nz-o-*, .nz-passo, .nz-steps li, [data-nav], .nz-pay-o, #nz-riep-dati, #nz-sum-*: non cambiarli. */
+#nz-ordine-pag { --g: #1f9d55; --gh: #17803f; --r: #c62828; }
+#nz-ordine-pag .nz-steps { display: flex; align-items: center; gap: 0; list-style: none; margin: 0 0 2rem; padding: 0; border: 0; }
+#nz-ordine-pag .nz-steps li { display: flex; align-items: center; gap: .6rem; flex: 0 0 auto; margin: 0; padding: 0; border: 0; opacity: 1; color: var(--nz-muto); font-weight: 500; font-size: .95rem; }
+#nz-ordine-pag .nz-steps li[hidden] { display: none; }
+#nz-ordine-pag .nz-steps li:not([hidden]) ~ li:not([hidden]) { flex: 1 1 auto; }
+#nz-ordine-pag .nz-steps li:not([hidden]) ~ li:not([hidden])::before { content: ""; flex: 1 1 auto; min-width: 1.5rem; height: 2px; margin-right: .75rem; border-radius: 2px; background: var(--nz-bordo); }
+#nz-ordine-pag .nz-steps li:not([hidden]) ~ li.on::before, #nz-ordine-pag .nz-steps li:not([hidden]) ~ li.fatto::before { background: var(--g); }
+#nz-ordine-pag .nz-steps .nz-sn { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 2rem; height: 2rem; border: 2px solid var(--nz-bordo); border-radius: 50%; font-size: .85rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+#nz-ordine-pag .nz-steps li.on { color: var(--nz-testo); }
+#nz-ordine-pag .nz-steps li.on .nz-sn { background: var(--g); border-color: var(--g); color: #fff; }
+#nz-ordine-pag .nz-steps li.fatto { color: var(--nz-testo); }
+#nz-ordine-pag .nz-steps li.fatto .nz-sn { border-color: var(--g); color: var(--g); font-size: 0; }
+#nz-ordine-pag .nz-steps li.fatto .nz-sn::before { content: "\2713"; font-size: 1rem; }
+@media (max-width: 575.98px) { #nz-ordine-pag .nz-steps .nz-sl { display: none; } #nz-ordine-pag .nz-steps li.on .nz-sl { display: inline; } }
+
+#nz-ordine-pag .nz-ord-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem; align-items: start; }
+@media (min-width: 820px) {
+  #nz-ordine-pag .nz-ord-grid { grid-template-columns: minmax(0, 1fr) 19rem; gap: 2.5rem; }
+  #nz-ordine-pag .nz-ord-sum { position: sticky; top: 5.5rem; }
+}
+#nz-ordine-pag .nz-h { font-size: 1.35rem; margin: 0 0 .25rem; }
+#nz-ordine-pag .nz-sub { color: var(--nz-muto); margin: 0 0 1.5rem; }
+#nz-ordine-pag .nz-h2 { font-size: 1rem; font-weight: 600; padding: 0; margin: 0 0 .75rem; }
+
+#nz-ordine-pag .nz-f { margin: 0 0 1rem; }
+#nz-ordine-pag .nz-f label { display: block; margin: 0 0 .35rem; font-size: .85rem; font-weight: 500; }
+#nz-ordine-pag .nz-opz { font-weight: 400; color: var(--nz-muto); }
+#nz-ordine-pag .nz-f input, #nz-ordine-pag .nz-f select, #nz-ordine-pag .nz-f textarea { display: block; width: 100%; padding: 0 1rem; font-size: 1rem; color: var(--nz-testo); background: var(--nz-sfondo); border: 1.5px solid var(--nz-bordo); border-radius: var(--nz-rl); box-shadow: none; transition: border-color .15s, box-shadow .15s; }
+#nz-ordine-pag .nz-f input, #nz-ordine-pag .nz-f select { height: 3rem; }
+#nz-ordine-pag .nz-f textarea { padding: .75rem 1rem; resize: vertical; min-height: 4.5rem; }
+#nz-ordine-pag .nz-f input:hover, #nz-ordine-pag .nz-f select:hover, #nz-ordine-pag .nz-f textarea:hover { border-color: color-mix(in srgb, var(--nz-tema) 55%, var(--nz-bordo)); }
+#nz-ordine-pag .nz-f input:focus, #nz-ordine-pag .nz-f select:focus, #nz-ordine-pag .nz-f textarea:focus { outline: none; border-color: var(--nz-tema); box-shadow: 0 0 0 3px color-mix(in srgb, var(--nz-tema) 20%, transparent); }
+#nz-ordine-pag .nz-f-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 1rem; }
+@media (min-width: 576px) {
+  #nz-ordine-pag .nz-f-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #nz-ordine-pag .nz-f-row.nz-r3 { grid-template-columns: 8rem minmax(0, 1fr) 7rem; }
+}
+#nz-ordine-pag .nz-err { margin: 0 0 1rem; padding: .6rem .9rem; border-radius: var(--nz-r); color: var(--r); background: color-mix(in srgb, var(--r) 8%, var(--nz-sfondo)); font-size: .92rem; }
+#nz-ordine-pag .nz-err:empty { display: none; }
+
+/* Metodi di pagamento */
+#nz-ordine-pag .nz-pay { border: 0; padding: 0; margin: 0 0 1.5rem; min-width: 0; }
+#nz-ordine-pag .nz-pay-o { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .1rem .85rem; align-items: center; margin: 0 0 .6rem; padding: .85rem 1rem; border: 1.5px solid var(--nz-bordo); border-radius: var(--nz-rl); cursor: pointer; transition: border-color .15s, background-color .15s, box-shadow .15s; }
+#nz-ordine-pag .nz-pay-o:hover { border-color: color-mix(in srgb, var(--g) 55%, var(--nz-bordo)); }
+#nz-ordine-pag .nz-pay-o input { grid-row: 1 / 3; width: 1.15rem; height: 1.15rem; margin: 0; accent-color: var(--g); }
+#nz-ordine-pag .nz-pay-t { font-weight: 500; }
+#nz-ordine-pag .nz-pay-d { grid-column: 2; font-size: .85rem; color: var(--nz-muto); }
+#nz-ordine-pag .nz-pay-o.on { border-color: var(--g); background: color-mix(in srgb, var(--g) 6%, var(--nz-sfondo)); box-shadow: 0 0 0 1px var(--g); }
+#nz-ordine-pag .nz-pay-o:focus-within { outline: 2px solid color-mix(in srgb, var(--g) 45%, transparent); outline-offset: 2px; }
+
+/* Riepilogo dati (passo 3), esito, nota legale */
+#nz-ordine-pag .nz-recap { border: 1px solid var(--nz-bordo); border-radius: var(--nz-rl); padding: .15rem 1rem; margin: 0 0 1.5rem; }
+#nz-ordine-pag .nz-recap-r { display: flex; gap: 1rem; padding: .75rem 0; }
+#nz-ordine-pag .nz-recap-r + .nz-recap-r { border-top: 1px solid var(--nz-bordo); }
+#nz-ordine-pag .nz-recap-k { flex: 0 0 6.5rem; color: var(--nz-muto); font-size: .85rem; padding-top: .1rem; }
+#nz-ordine-pag .nz-recap-v { min-width: 0; overflow-wrap: anywhere; }
+#nz-ordine-pag .nz-esito { margin: 0 0 1rem; padding: .85rem 1rem; border: 1px solid var(--nz-bordo); border-radius: var(--nz-rl); font-size: .95rem; }
+#nz-ordine-pag .nz-esito[hidden] { display: none; }
+#nz-ordine-pag .nz-esito-err { border-color: var(--r); color: var(--r); background: color-mix(in srgb, var(--r) 8%, var(--nz-sfondo)); }
+#nz-ordine-pag .nz-legale { margin: 0 0 .25rem; color: var(--nz-muto); font-size: .82rem; }
+
+/* Riepilogo ordine a lato */
+#nz-ordine-pag .nz-ord-sum { padding: 1.25rem; border: 1px solid var(--nz-bordo); border-radius: var(--nz-rl); background: color-mix(in srgb, var(--nz-tema) 4%, var(--nz-sfondo)); }
+#nz-ordine-pag .nz-sum-t { margin: 0 0 .5rem; font-size: 1.05rem; font-weight: 600; }
+#nz-ordine-pag .nz-sum-righe { list-style: none; margin: 0; padding: 0; }
+#nz-ordine-pag .nz-sum-righe li { display: flex; justify-content: space-between; gap: 1rem; padding: .65rem 0; border-bottom: 1px solid var(--nz-bordo); font-size: .95rem; }
+#nz-ordine-pag .nz-sum-n { display: flex; flex-direction: column; min-width: 0; }
+#nz-ordine-pag .nz-sum-n small { color: var(--nz-muto); }
+#nz-ordine-pag .nz-sum-righe li > span:last-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
+#nz-ordine-pag .nz-sum-tot { display: flex; justify-content: space-between; align-items: baseline; margin: .9rem 0 1rem; font-size: 1.05rem; }
+#nz-ordine-pag .nz-sum-tot strong { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+#nz-ordine-pag .nz-sum-fiducia { list-style: none; margin: 0; padding: 0; color: var(--nz-muto); font-size: .85rem; }
+#nz-ordine-pag .nz-sum-fiducia li { padding: .15rem 0; }
+#nz-ordine-pag .nz-sum-fiducia li::before { content: "\2713"; color: var(--g); margin-right: .5rem; font-weight: 700; }
+
+/* Bottoni (stessa forma di quelli del carrello): Continua/Paga verde pieno, Indietro neutro con contorno */
+#nz-ordine-pag .nz-az-ord { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: space-between; align-items: center; margin-top: 1.5rem; }
+#nz-ordine-pag .nz-b { display: inline-flex; align-items: center; justify-content: center; height: 3rem; padding: 0 1.75rem; margin: 0; font-size: 1rem; font-weight: 500; letter-spacing: .01em; text-decoration: none; border: 2px solid var(--nz-bordo); border-radius: var(--nz-r); background: transparent; color: var(--nz-testo); box-shadow: none; cursor: pointer; transition: background-color .15s, color .15s, border-color .15s, box-shadow .15s; }
+#nz-ordine-pag .nz-b:hover { border-color: var(--nz-testo); text-decoration: none; }
+#nz-ordine-pag .nz-b-vai { background: var(--g); border-color: var(--g); color: #fff; }
+#nz-ordine-pag .nz-b-vai:hover, #nz-ordine-pag .nz-b-vai:focus-visible { background: var(--gh); border-color: var(--gh); color: #fff; }
+#nz-ordine-pag .nz-b:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--g) 30%, transparent); }
+#nz-ordine-pag .nz-b:active { transform: translateY(1px); }
+#nz-ordine-pag .nz-b[disabled] { opacity: .6; cursor: default; }
+@media (max-width: 575.98px) {
+  #nz-ordine-pag .nz-az-ord { flex-direction: column-reverse; align-items: stretch; }
+  #nz-ordine-pag .nz-b { width: 100%; }
+}
+
+/* ===== COMPATIBILITA' TEMA MINIMAL MISTAKES =====
+   Il negozio nasce su al-folio (Bootstrap: btn btn-primary, fw-bold, text-muted...). Qui ridefiniamo SOLO cio' che serve, solo dentro le pagine del negozio. */
+#negozio .btn, #nz-carrello-pag .btn, #nz-ordine-pag .btn, .nz-dialog .btn { display: inline-block; padding: .5rem 1rem; border-radius: var(--nz-r); border: 1px solid var(--nz-bordo); background: #fff; color: var(--nz-testo); font-size: .95rem; line-height: 1.3; cursor: pointer; text-decoration: none; margin: 0; }
+#negozio .btn-primary { background: var(--nz-tema); border-color: var(--nz-tema); color: #fff; }
+#negozio .btn-primary:hover { filter: brightness(1.12); color: #fff; }
+#negozio .btn-outline-secondary:hover { border-color: var(--nz-tema); color: var(--nz-tema); }
+#negozio .fw-bold, #negozio .nz-prezzo { font-weight: 700; }
+#negozio .text-muted, .nz-cart .text-muted { color: var(--nz-muto); }
+#negozio input, #nz-ordine-pag input, #nz-ordine-pag select, #nz-ordine-pag textarea { margin-bottom: 0; }
+#negozio .nz-qta { width: 4.5rem; display: inline-block; text-align: center; }
+#negozio table, #nz-carrello-pag table, #nz-ordine-pag table { display: table; overflow: visible; margin-bottom: 1rem; }
+#negozio .nz-lista, #nz-carrello-pag, #nz-ordine-pag { font-size: 1rem; }
+.nz-cartw a.nz-cart { border-bottom: 0; }
+/* ===== Carrello (/carrello/): bottoni PIENI a colori (Svuota rosso, Continua arancio, Procedi verde); in hover diventano piu' chiari,
+   si alzano un po' e una lama di luce li attraversa. Le X rosse sostituiscono il vecchio "Togli" (la X e' disegnata in CSS: nessun font). */
+#nz-carrello-pag .nz-az-carrello .nz-b.nz-b { position: relative; overflow: hidden; isolation: isolate; color: #fff; background: var(--c); border-color: var(--c); box-shadow: 0 2px 6px color-mix(in srgb, var(--c) 35%, transparent); transition: background-color .25s, border-color .25s, box-shadow .25s, transform .25s; }
+#nz-carrello-pag .nz-az-carrello .nz-b.nz-b::after { content: ""; position: absolute; top: 0; bottom: 0; left: -80%; width: 45%; z-index: -1; pointer-events: none; background: linear-gradient(105deg, transparent, rgba(255,255,255,.55), transparent); transform: skewX(-20deg); transition: left .6s ease; }
+#nz-carrello-pag .nz-az-carrello .nz-b.nz-b:hover, #nz-carrello-pag .nz-az-carrello .nz-b.nz-b:focus-visible { color: #fff; text-decoration: none !important; background: color-mix(in srgb, var(--c) 72%, #fff); border-color: color-mix(in srgb, var(--c) 72%, #fff); transform: translateY(-2px); box-shadow: 0 8px 18px color-mix(in srgb, var(--c) 40%, transparent); }
+#nz-carrello-pag .nz-az-carrello .nz-b.nz-b:hover::after, #nz-carrello-pag .nz-az-carrello .nz-b.nz-b:focus-visible::after { left: 130%; }
+#nz-carrello-pag .nz-az-carrello .nz-b.nz-b:active { transform: translateY(0); box-shadow: 0 2px 6px color-mix(in srgb, var(--c) 35%, transparent); }
+#nz-carrello-pag .nz-x { position: relative; flex: none; width: 2rem; height: 2rem; padding: 0; margin: 0; border: 0; border-radius: 50%; font-size: 0; line-height: 0; color: #c62828; background: rgba(198,40,40,.08); cursor: pointer; transition: background-color .2s, color .2s, transform .3s; }
+#nz-carrello-pag .nz-x::before, #nz-carrello-pag .nz-x::after { content: ""; position: absolute; left: 50%; top: 50%; width: 1rem; height: 2px; margin: -1px 0 0 -.5rem; border-radius: 2px; background: currentColor; }
+#nz-carrello-pag .nz-x::before { transform: rotate(45deg); }
+#nz-carrello-pag .nz-x::after { transform: rotate(-45deg); }
+#nz-carrello-pag .nz-x:hover, #nz-carrello-pag .nz-x:focus-visible { color: #fff; background: #c62828; transform: rotate(90deg) scale(1.12); }
+#nz-carrello-pag .nz-x:active { transform: rotate(90deg) scale(.95); }
+#nz-carrello-pag .nz-x:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(198,40,40,.3); }
+@media (prefers-reduced-motion: reduce) {
+  #nz-carrello-pag .nz-az-carrello .nz-b.nz-b, #nz-carrello-pag .nz-az-carrello .nz-b.nz-b::after, #nz-carrello-pag .nz-x { transition: none; }
+  #nz-carrello-pag .nz-az-carrello .nz-b.nz-b:hover, #nz-carrello-pag .nz-x:hover { transform: none; }
+}
+
+/* CARD PRODOTTO CLICCABILE: un tap ovunque sulla card apre la scheda (link esteso sul titolo).
+   Restano attivi quantita', Aggiungi al carrello e il link della categoria. */
+#negozio .nz-riga { position: relative; cursor: pointer; }
+#negozio .nz-riga .nz-testo h3 a::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+#negozio .nz-riga:hover .nz-testo h3 a { color: var(--nz-tema); }
+#negozio .nz-riga .nz-cat a { position: relative; z-index: 2; }
+#negozio .nz-riga .nz-azioni { position: relative; z-index: 2; pointer-events: none; }
+#negozio .nz-riga .nz-azioni .nz-step, #negozio .nz-riga .nz-azioni .nz-add { pointer-events: auto; cursor: pointer; }
+
+/* X per rimuovere un prodotto dal mini-carrello (creata da carrello.js > anteprima(), click gestito li'). Classe nz-* = nella safelist purgecss. */
+.nz-prev li { align-items: center; }
+.nz-prev-x { flex: 0 0 auto; width: 1.5rem; height: 1.5rem; margin: 0 -.25rem 0 -.5rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #8a94a0; font-size: 1.25rem; line-height: 1; cursor: pointer; transition: background .15s, color .15s; }
+.nz-prev-x:hover, .nz-prev-x:focus-visible { background: #fdeaea; color: #c0392b; outline: none; }
+
+/* ===== FOTO PRODOTTO NELLA LISTA: la piu' grande possibile dentro la scheda (24/10/2026).
+La scheda non ha padding: la foto sta a filo a sinistra, occupa tutta l'altezza e riempie il riquadro (object-fit: cover, mai rimpicciolita nel quadratino).
+Testo e azioni hanno il loro padding. Per ingrandire/ridurre: cambia la prima colonna di grid-template-columns e il min-height. Sovrascrive le regole piu' sopra. */
+#negozio .nz-riga { grid-template-columns: 17rem minmax(0, 1fr) 13.5rem; gap: 1.25rem; align-items: stretch; padding: 0; overflow: hidden; }
+#negozio .nz-riga .nz-icona { height: 100%; min-height: 12.5rem; aspect-ratio: auto; border: 0; border-radius: 0; }
+#negozio .nz-riga .nz-testo { padding: 1rem 0; align-self: center; }
+#negozio .nz-riga .nz-azioni { padding: 1rem 1rem 1rem 0; }
+#negozio .nz-riga:hover .nz-icona img { transform: scale(1.04); }
+#negozio .nz-riga .nz-icona img { transition: transform .4s ease; }
+@media (max-width: 767.98px) {
+  #negozio .nz-riga { grid-template-columns: 10rem minmax(0, 1fr); gap: 0 1rem; }
+  #negozio .nz-riga .nz-icona { min-height: 9rem; }
+  #negozio .nz-riga .nz-testo { padding: .8rem 1rem .4rem 0; }
+  #negozio .nz-riga .nz-azioni { padding: 0 1rem 1rem; }
+}
+@media (max-width: 420px) {
+  #negozio .nz-riga { grid-template-columns: 1fr; }
+  #negozio .nz-riga .nz-icona { min-height: 0; aspect-ratio: 16 / 10; }
+  #negozio .nz-riga .nz-testo { padding: .8rem 1rem .2rem; }
+}

@@ -1,0 +1,390 @@
+---
+# Front matter vuoto obbligatorio per Jekyll
+---
+// GUIDA-SVILUPPO: CSS PRINCIPALE. Importa il tema (minimal-mistakes) e poi lo ritocca, a sezioni datate. Colori: usa le variabili --t-accent / --t-link (da _data/tema.json via head/custom.html), mai esadecimali nuovi.
+// Altri CSS: menu.css (menu), negozio.css (shop), gaming.css (blocchi home .gc-), galleria.css, post-cover.css. Nome file e front matter vuoto sono obbligatori per Jekyll.
+
+@import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}";
+@import "minimal-mistakes";
+
+/* ============================================================
+   TIPOGRAFIA FLUIDA
+   ============================================================ */
+
+h1, .page__title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 0.5em;
+  font-family: var(--t-font, inherit);
+}
+h2 {
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-top: 2em;
+  margin-bottom: 0.4em;
+  font-family: var(--t-font, inherit);
+}
+h3 {
+  font-size: clamp(1.1rem, 2.2vw, 1.55rem);
+  font-weight: 500;
+  line-height: 1.3;
+  margin-top: 1.6em;
+  margin-bottom: 0.35em;
+}
+h4, h5, h6 {
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  font-weight: 500;
+  line-height: 1.4;
+}
+body {
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  line-height: 1.9;
+  color: var(--t-text, #3a3a3a);
+  -webkit-font-smoothing: antialiased;
+  background: var(--t-body-bg, #ffffff) !important;
+  font-size: calc(clamp(1rem, 1.6vw, 1.15rem) * var(--t-font-scale, 1));
+}
+.initial-content, #main, .page, .page__inner-wrap,
+.page__content, .archive, .sidebar, .sidebar__right {
+  background: var(--t-body-bg, #ffffff) !important;
+}
+.page__content p, .page__content li {
+  font-size: calc(clamp(1rem, 1.6vw, 1.15rem) * var(--t-font-scale, 1));
+  line-height: 1.9;
+  color: var(--t-text, #3a3a3a);
+  margin-bottom: 1.4em;
+}
+.page__content h2, .page__content h3, .page__content h4 {
+  margin-top: 2.2em;
+  margin-bottom: 0.5em;
+}
+.author__name {
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  font-weight: 500;
+}
+.author__bio {
+  font-size: clamp(0.88rem, 1.4vw, 1rem);
+  line-height: 1.75;
+  color: #555;
+}
+.archive__item-title {
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 0.3em;
+}
+.archive__item-excerpt {
+  font-size: clamp(0.9rem, 1.5vw, 1.05rem);
+  line-height: 1.8;
+  color: #555;
+}
+.archive__subtitle {
+  font-size: clamp(0.75rem, 1.2vw, 0.85rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #999;
+  font-weight: 400;
+}
+.greedy-nav a {
+  font-size: clamp(0.82rem, 1.3vw, 0.93rem);
+  letter-spacing: 0.05em;
+  font-weight: 400;
+}
+.masthead {
+  border-bottom: 1px solid #e8e8e8 !important;
+  box-shadow: none !important;
+}
+.greedy-nav {
+  background: var(--t-nav-bg, #fff) !important;
+  box-shadow: none !important;
+  border-bottom: none !important;
+}
+.greedy-nav a.site-title,
+.greedy-nav .visible-links a { color: var(--t-nav-text, #111) !important; }
+.greedy-nav .visible-links a:hover { color: var(--t-nav-hover, #555) !important; }
+.greedy-nav button { background: transparent !important; color: var(--t-nav-text, #111) !important; }
+.page__meta, .page__meta-sep, .breadcrumbs {
+  font-size: clamp(0.78rem, 1.2vw, 0.88rem);
+  color: #888;
+}
+* { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+img { max-width: 100%; height: auto; }
+
+/* ============================================================
+   LINK STILE GOOGLE — globale
+   Nessun underline di default, appare solo all'hover
+   ============================================================ */
+a {
+  text-decoration: none !important;
+  color: var(--t-link, #0e7490);
+}
+a:hover {
+  text-decoration: underline !important;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 3px !important;
+}
+/* Eccezioni: navbar, bottoni, pill — no underline mai */
+.greedy-nav a,
+.greedy-nav a:hover,
+.blog-cat, .blog-cat:hover,
+.blog-readmore, .blog-readmore:hover,
+.blog-tag, .blog-tag:hover,
+.blog-title:hover,
+.cart-nav-btn, .cart-nav-btn:hover,
+.page__taxonomy-item, .page__taxonomy-item:hover {
+  text-decoration: none !important;
+}
+
+blockquote {
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--t-text, #555);
+  border-left: 2px solid var(--t-accent, #ccc);
+  padding-left: 1.5em;
+  margin-left: 0;
+}
+
+/* ============================================================
+   CATEGORY TAG — pill luxury viola/indigo con ombra 3D
+   ============================================================ */
+.archive__item .page__taxonomy-item,
+.page__taxonomy-item,
+a.page__taxonomy-item,
+.page__meta .page__taxonomy-item {
+  display: inline-block !important;
+  font-size: 10px !important;
+  letter-spacing: 0.15em !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+  background: var(--t-accent, #818cf8) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: var(--t-radius, 999px) !important;
+  padding: 4px 14px !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+  text-decoration: none !important;
+  margin-right: 4px !important;
+  margin-bottom: 4px !important;
+}
+.archive__item .page__taxonomy-item:hover,
+a.page__taxonomy-item:hover {
+  background: var(--t-accent-dark, #6366f1) !important;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+  color: #fff !important;
+}
+
+/* ============================================================
+   SIDEBAR A DESTRA — CSS Grid
+   ============================================================ */
+@media (min-width: 64em) {
+  #main:has(> .sidebar) {
+    display: grid !important;
+    grid-template-columns: 1fr 200px !important;
+    grid-template-rows: auto auto !important;
+    align-items: start !important;
+    gap: 0 2em !important;
+  }
+  #main:has(> .sidebar) > .sidebar {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    float: none !important;
+    margin: 0 !important;
+  }
+  #main:has(> .sidebar) > article.page {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    float: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+    -webkit-box-sizing: border-box !important;
+    box-sizing: border-box !important;
+  }
+  #main:has(> .sidebar) > .page__related {
+    /* 15/10/2026: le card correlate stanno SOLO nella colonna dell'articolo (1), non sotto la sidebar (1 / -1),
+       cosi' hanno la stessa larghezza del testo e dei bottoni Precedente/Successivo. */
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    clear: none !important;
+  }
+}
+
+/* 21/10/2026: pagine SENZA sidebar (es. progetti): stessa larghezza del testo degli articoli
+   (colonna 1fr dell'articolo = 100% - 200px sidebar - 2em gap), senza il padding/float del tema. */
+@media (min-width: 64em) {
+  #main:not(:has(> .sidebar)) > article.page {
+    float: none !important;
+    width: calc(100% - 200px - 2em) !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* ============================================================
+   YOU MAY ALSO ENJOY
+   ============================================================ */
+.page__related { clear: both !important; }
+.page__related .grid__wrapper::after { content: ""; display: table; clear: both; }
+.page__related .archive__item-title { margin-top: 0.2em !important; margin-bottom: 0.35em !important; }
+.page__related .page__meta { margin-bottom: 0.6em !important; }
+.page__related .archive__item-excerpt { margin-top: 0 !important; }
+@media (min-width: 37.5em) {
+  .page__related .grid__item {
+    float: left !important;
+    width: 48.9795918367% !important;
+    margin-bottom: 2em !important;
+  }
+  .page__related .grid__item:nth-child(2n+1) { clear: both !important; margin-left: 0 !important; }
+  .page__related .grid__item:nth-child(2n+2) { clear: none !important; margin-left: 2.0408163265% !important; }
+}
+@media (min-width: 48em) {
+  .page__related .grid__item {
+    width: 23.7288135593% !important;
+    margin-left: 2.0408163265% !important;
+  }
+  .page__related .grid__item:nth-child(4n+1) { clear: both !important; margin-left: 0 !important; }
+  .page__related .grid__item:nth-child(4n+2),
+  .page__related .grid__item:nth-child(4n+3),
+  .page__related .grid__item:nth-child(4n+4) { clear: none !important; }
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.page__footer, .page__footer footer,
+.page__footer-follow, .page__footer-copyright {
+  background: var(--t-body-bg, #ffffff) !important;
+  box-shadow: none !important;
+}
+.page__footer { border-top: 1px solid #e8e8e8 !important; margin-top: 1cm !important; }
+.page__footer-follow ul li,
+.page__footer-follow ul li a,
+.page__footer-copyright,
+.page__footer-copyright a { color: #888 !important; }
+.page__footer-follow ul li a:hover,
+.page__footer-copyright a:hover { color: var(--t-nav-text, #111) !important; text-decoration: none !important; }
+
+/* ============================================================
+   WIDE PAGE
+   ============================================================ */
+.wide #main > article.page,
+.wide #main > article.page .page__inner-wrap,
+.wide #main > article.page .page__content {
+  max-width: 1280px !important;
+  width: 100% !important;
+  float: none !important;
+  padding-right: 0 !important;
+}
+
+/* Blog: nasconde il page__title di MM */
+.page--blog #page-title { display: none !important; }
+
+/* Nasconde copyright duplicato MM */
+.page__footer-copyright { display: none !important; }
+.page__footer-custom { color: #4a4a4a; font-size: 0.65em; }
+
+/* ============================================================
+   REDESIGN STILE HOME (verde, Archivo Narrow, angoli netti)
+   ============================================================ */
+:root{--ex-ink:#15191d;--ex-line:#d3e6ea;--ex-warm:#eef8fa;--ex-y:#7fd8e6;--ex-gd:#0e7490;--ex-deep:#0b3b46;--ex-d:'Archivo Narrow','Arial Narrow',sans-serif}
+::selection{background:var(--ex-y);color:var(--ex-ink)}
+h1,h2,h3,h4,.page__title,.archive__item-title{font-family:var(--ex-d);color:var(--ex-ink);font-weight:700;letter-spacing:-.01em}
+h1,.page__title{line-height:1;text-wrap:balance}
+a{color:var(--ex-gd)}
+/* LINK VISITATI (15/10/2026): il tema Minimal Mistakes colora a:visited di celestino scuro
+   (specificita' maggiore di qualsiasi .classe): ecco perche' alcune voci di menu/link erano celestine.
+   Qui i visitati restano uguali ai non visitati (verde del tema). Eccezioni: footer su fondo scuro. */
+a:visited{color:var(--t-link,#0e7490)}
+.page__footer a:visited,.page__footer-follow a:visited{color:#8a6a00}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--ex-ink);outline-offset:3px}
+.btn,.sp-btn-cart,.btn-cart,.btn-checkout,.btn-conferma{border-radius:2px !important;font-family:var(--ex-d);letter-spacing:0}
+.btn--primary,.btn--primary:visited{background:var(--ex-y);color:var(--ex-ink)}
+.btn--primary:hover,.sp-btn-cart:hover,.btn-cart:hover,.btn-checkout:hover,.btn-conferma:hover{background:#e6d2ae !important;color:var(--ex-ink) !important}
+.shop-cat-card,.prod-card,.cat-card,.art-row,.sp-opt,.sp-badge{border-radius:2px !important;border-color:var(--ex-line)}
+.masthead{border-bottom:1px solid var(--ex-line)}
+.page__footer{background:var(--ex-deep);color:#4a4a4a;border-top:0}
+.page__footer a,.page__footer-follow a{color:#8a6a00}
+.page__footer a:hover{color:#5c4500}
+
+/* ============================================================
+   CARD "ALTRI SERVIZI" / "YOU MAY ALSO ENJOY" (servizi e blog)
+   Prima: float con larghezze fisse e testo attaccato a bordi e titolo.
+   Ora: CSS grid (auto-fit, nessun breakpoint), padding interno, filo sottile del tema.
+   Per cambiare larghezza minima delle card: 15rem in grid-template-columns.
+   Gli !important servono per battere le regole float di "YOU MAY ALSO ENJOY" piu' sopra.
+   ============================================================ */
+/* RAGGIO ANGOLI (15/10/2026): un solo valore per card e bottoni Precedente/Successivo. Per angoli piu' o meno tondi cambiare qui. */
+.page__related,.pagination{--ex-raggio:12px}
+/* LARGHEZZA CARD (15/10/2026): ogni card e' larga quanto un bottone Precedente/Successivo = meta' della
+   larghezza dell'articolo (2 per riga da tablet in su, 1 per riga su telefono). Lo spazio tra le card (.75rem)
+   e' lo stesso dei bottoni, cosi' le larghezze coincidono. Per averne 3 per riga: repeat(3,1fr). */
+.page__related .grid__wrapper{display:grid !important;grid-template-columns:1fr;gap:.75rem;margin:0 !important}
+@media (min-width:37.5em){.page__related .grid__wrapper{grid-template-columns:repeat(2,1fr)}}
+/* FIX POSIZIONE (15/10/2026): il tema mette .page__related in float senza larghezza sotto i 64em, quindi
+   il blocco si restringeva e le card finivano tutte a sinistra. Qui: niente float, larghezza piena
+   del contenitore, cosi' le card seguono sempre la larghezza dell'articolo (blog e servizi). */
+.page__related{float:none !important;width:100% !important;box-sizing:border-box;padding-inline:0 !important}
+.page__related .grid__wrapper::after{display:none !important}
+.page__related .grid__item{float:none !important;width:auto !important;margin:0 !important;padding:0 !important}
+/* Card moderna: angoli arrotondati; overflow:hidden fa seguire l'immagine in alto alla curva degli angoli */
+.page__related .archive__item{height:100%;display:flex;flex-direction:column;overflow:hidden;padding:1.1rem 1.25rem 1.25rem;background:#fff;border:1px solid var(--ex-line);border-radius:var(--ex-raggio);transition:border-color .15s}
+.page__related .archive__item:hover{border-color:var(--ex-gd)}
+.page__related .archive__item-teaser{margin:-1.1rem -1.25rem .9rem}
+.page__related .archive__item-teaser img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.page__related .archive__item-title{margin:0 0 .5rem !important;font-size:1.1rem;line-height:1.3}
+.page__related .archive__item-title a{color:var(--ex-ink);text-decoration:none}
+.page__related .archive__item-title a:hover{color:var(--ex-gd);text-decoration:underline}
+.page__related .archive__item-excerpt{margin:0 !important;font-size:.92rem;line-height:1.6;color:#555}
+@media (prefers-reduced-motion:reduce){.page__related .archive__item{transition:none}}
+
+/* BOTTONI Precedente/Successivo (15/10/2026): moderni, angoli arrotondati, due bottoni separati da un piccolo
+   spazio (.75rem, come le card). Larghezza: meta' ciascuno. Con un solo bottone (prima/ultima pagina) resta
+   largo meta' e "Successivo" va a destra. Selettori con > per non toccare la paginazione degli elenchi (ul). */
+.pagination:has(> .pagination--pager){display:flex !important;gap:.75rem;width:100%;margin-top:1.5rem}
+.pagination > .pagination--pager{float:none !important;flex:0 0 calc(50% - .375rem);width:auto !important;margin:0 !important;box-sizing:border-box;padding:.7em 1em;border:1px solid var(--ex-line) !important;border-radius:var(--ex-raggio) !important;background:#fff;color:var(--ex-ink);font-weight:600;text-align:center;transition:border-color .15s,color .15s}
+.pagination > .pagination--pager:last-child{margin-left:auto !important}
+.pagination > .pagination--pager:hover{border-color:var(--ex-gd) !important;color:var(--ex-gd);background:#fff}
+
+.author__avatar img{border-radius:50% !important;object-fit:cover;aspect-ratio:1/1}
+
+/* VIDEO YOUTUBE: sempre a larghezza piena, proporzione 16:9 (gli iframe del vecchio WordPress avevano width/height fissi) */
+.video-shortcode{position:relative;width:100%;aspect-ratio:16/9;margin:1.6rem 0}
+.video-shortcode iframe,.page__content iframe[src*="youtube"]{width:100%;height:100%;border:0}
+.page__content iframe[src*="youtube"]:not(.video-shortcode iframe){aspect-ratio:16/9;height:auto}
+.page__content img{max-width:100%;height:auto}
+
+/* ==========================================================================================
+   LARGHEZZA SITO ? REGOLA FISSA (non modificare la logica, solo i due valori qui sotto)
+   Tutto il sito (breadcrumb, contenuto/articoli, footer) deve avere ESATTAMENTE la stessa
+   larghezza del menu: dal LOGO a sinistra fino alla fine del NUMERO DEL CARRELLO a destra.
+   - --nz-wrap-max = larghezza massima del contenitore (menu incluso)
+   - --nz-wrap-pad = margine laterale, SEMPRE in rem (mai em: cambia con il font e sballa l'allineamento)
+   Il menu (assets/css/menu.css .nv__inner) legge le STESSE variabili: se cambi un valore, cambia
+   tutto insieme. NON assegnare max-width/padding diversi a #main, .breadcrumbs o al footer altrove:
+   il tema aveva 1280px + padding 1em, per questo le pagine (es. articoli del blog) risultavano
+   piu' strette del menu.
+   ========================================================================================== */
+:root { --nz-wrap-max: 1360px; --nz-wrap-pad: 1rem; }
+#main, .breadcrumbs, .page__footer footer {
+  max-width: var(--nz-wrap-max) !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: var(--nz-wrap-pad) !important;
+  padding-right: var(--nz-wrap-pad) !important;
+  box-sizing: border-box !important;
+}

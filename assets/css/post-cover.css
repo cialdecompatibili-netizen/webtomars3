@@ -1,0 +1,19 @@
+/* Copertina articolo (header.teaser): adattiva, mai ritagliata e mai ingrandita oltre la dimensione originale */
+.post-cover {
+  margin: 0 0 1.5em;
+  text-align: center;
+}
+.post-cover img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: min(70vh, 560px);
+  margin: 0 auto;
+  border-radius: 4px;
+}
+@media (max-width: 600px) {
+  .post-cover img {
+    max-height: 60vh;
+  }
+}

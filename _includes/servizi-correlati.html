@@ -1,0 +1,47 @@
+{%- comment -%}
+GUIDA-SVILUPPO: ALTRI SERVIZI in fondo alla pagina servizio. Il numero di card si cambia con la variabile max_card (resta PARI: la griglia e' a 2 colonne). Legge la collection `servizi` + i post con categoria `servizi`, senza doppioni e senza la pagina corrente.
+{%- endcomment -%}
+{%- comment -%}
+  "Altri servizi" in fondo a ogni pagina servizio: stessa grafica delle card del blog
+  (grid__wrapper / archive__item), ma con i servizi al posto degli articoli.
+  Elenco = collection `servizi` + post con categoria `servizi`, senza doppioni (per url),
+  esclusa la pagina corrente, massimo 4 card (pari, così la griglia a 2 colonne resta piena).
+  Immagine card: header.teaser, altrimenti header.image; se mancano, card solo testo.
+  Per cambiare il numero di card: variabile `max_card` qui sotto.
+{%- endcomment -%}
+{%- assign max_card = 4 -%}
+{%- assign elenco = "" | split: "" -%}
+{%- for s in site.servizi -%}{%- assign elenco = elenco | push: s -%}{%- endfor -%}
+{%- for p in site.categories.servizi -%}{%- assign elenco = elenco | push: p -%}{%- endfor -%}
+{%- assign visti = "|" -%}
+{%- assign n = 0 -%}
+{%- capture cards -%}
+  {%- for item in elenco -%}
+    {%- assign chiave = "|" | append: item.url | append: "|" -%}
+    {%- if item.url == page.url or n >= max_card -%}{%- continue -%}{%- endif -%}
+    {%- if visti contains chiave -%}{%- continue -%}{%- endif -%}
+      {%- assign visti = visti | append: item.url | append: "|" -%}
+      {%- assign n = n | plus: 1 -%}
+      {%- assign img = item.header.teaser | default: item.header.image -%}
+      {%- assign testo = item.description | default: item.excerpt | strip_html | strip_newlines | truncate: 160 -%}
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    {% if img %}<div class="archive__item-teaser"><img src="{{ img | relative_url }}" alt="{{ item.title | escape }}"></div>{% endif %}
+    <h2 class="archive__item-title no_toc p-name" itemprop="headline"><a class="u-url" href="{{ item.url | relative_url }}" rel="permalink">{{ item.title }}</a></h2>
+    <p class="archive__item-excerpt p-summary" itemprop="description">{{ testo }}</p>
+  </article>
+</div>
+  {%- endfor -%}
+{%- endcapture -%}
+{%- if n > 0 -%}
+<div class="page__related servizi-correlati">
+  <style>
+    /* 4 card = griglia 2x2 (il tema di default ne mette 3 per riga e ne lascerebbe 1 sola) */
+    @media (min-width:768px){.servizi-correlati .grid__item{width:calc(50% - 1em);margin-left:0;margin-right:1em;float:left}.servizi-correlati .grid__item:nth-child(even){margin-right:0;margin-left:1em}}
+  </style>
+  <h2 class="page__related-title">Altri servizi</h2>
+  <div class="grid__wrapper">
+    {{ cards }}
+  </div>
+</div>
+{%- endif -%}

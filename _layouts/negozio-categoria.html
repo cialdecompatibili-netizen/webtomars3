@@ -1,0 +1,61 @@
+---
+layout: single
+classes: wide
+author_profile: false
+---
+{%- comment -%}
+PAGINA CATEGORIA DEL NEGOZIO. Il file _negozio/categoria-<id>.md (e la copia tradotta in en/negozio/categoria/<id>.md) ha solo front matter (layout, title, cid, ref, permalink); i prodotti vengono da _data/catalogo.json.
+Due livelli: reparto (senza "genitore", es. Donna/Uomo) e sottocategoria (campo "genitore" = id del reparto). Il reparto mostra le sue sottocategorie e i prodotti di tutte.
+Nomi nella lingua della pagina: catalogo.json > categorie[].tr[lingua].nome (manca = italiano). Link tra pagine dello shop: SEMPRE con {% include shop-url.html %} (gli slug cambiano per lingua), mai a mano.
+Le classi nz-* e i testi italiani dentro elementi nz-* sono tradotti da shop-i18n.js con _data/shop_ui.yml: se cambi un testo italiano, cambialo anche li'.
+{%- endcomment -%}
+{%- assign nz_lh = '/' -%}{%- if page.lang and page.lang != site.default_lang -%}{%- assign nz_lh = '/' | append: page.lang | append: '/' -%}{%- endif -%}
+{%- assign nz_k = site.data.catalogo.categorie | where: 'id', page.cid | first -%}
+{%- capture nz_u_shop -%}{% include shop-url.html k="shop" %}{%- endcapture -%}
+{%- if site.ecommerce != true or nz_k == nil -%}
+<p>Questa categoria non &egrave; disponibile. <a href="{{ nz_u_shop }}">Torna al negozio</a></p>
+{%- else -%}
+{%- assign nz_figli = site.data.catalogo.categorie | where: 'genitore', nz_k.id -%}
+{%- if nz_k.genitore -%}{%- assign nz_pad = site.data.catalogo.categorie | where: 'id', nz_k.genitore | first -%}{%- endif -%}
+{%- assign nz_ids = nz_k.id -%}
+{%- for f in nz_figli -%}{%- assign nz_ids = nz_ids | append: ',' | append: f.id -%}{%- endfor -%}
+{%- assign nz_ids_a = nz_ids | split: ',' -%}
+<div id="negozio" data-tracker="{{ site.ordini.tracker }}" data-worker="">
+<nav class="nz-brd" aria-label="Percorso"><a href="{{ nz_u_shop }}">Negozio</a>{% if nz_pad %} &rsaquo; <a href="{% include shop-url.html k="cat" id=nz_pad.id %}">{{ nz_pad.tr[page.lang].nome | default: nz_pad.nome }}</a>{% endif %} &rsaquo; <span>{{ nz_k.tr[page.lang].nome | default: nz_k.nome }}</span></nav>
+<div class="nz-pills"><a class="nz-cpill" href="{{ nz_u_shop }}">Tutti</a>
+{%- for c in site.data.catalogo.categorie -%}
+{%- unless c.genitore -%}
+<a class="nz-cpill{% if c.id == nz_k.id or c.id == nz_k.genitore %} on{% endif %}" href="{% include shop-url.html k="cat" id=c.id %}">{{ c.icona }} {{ c.tr[page.lang].nome | default: c.nome }}</a>
+{%- endunless -%}
+{%- endfor %}
+</div>
+{%- if nz_figli.size > 0 %}
+<div class="nz-pills nz-sub">
+{%- for c in nz_figli %}
+<a class="nz-cpill" href="{% include shop-url.html k="cat" id=c.id %}">{{ c.icona }} {{ c.tr[page.lang].nome | default: c.nome }}</a>
+{%- endfor %}
+</div>
+{%- elsif nz_pad %}
+{%- assign nz_fr = site.data.catalogo.categorie | where: 'genitore', nz_pad.id %}
+<div class="nz-pills nz-sub">
+{%- for c in nz_fr %}
+<a class="nz-cpill{% if c.id == nz_k.id %} on{% endif %}" href="{% include shop-url.html k="cat" id=c.id %}">{{ c.icona }} {{ c.tr[page.lang].nome | default: c.nome }}</a>
+{%- endfor %}
+</div>
+{%- endif %}
+{%- assign nz_lista = site.data.catalogo.prodotti | where_exp: 'x', 'nz_ids_a contains x.categoria' | where_exp: 'x', 'x.visibile != false' -%}
+{%- if nz_lista.size == 0 -%}
+{%- capture nz_u_cont -%}{% include url-ref.html ref="contatti" %}{%- endcapture -%}
+<p class="nz-cnt nz-vuota">Gli articoli di questa categoria arrivano presto. <a href="{{ nz_u_cont }}">Scrivici cosa cerchi.</a></p>
+{%- else -%}
+<p class="nz-cnt">{{ nz_lista.size }} {% if nz_lista.size == 1 %}prodotto{% else %}prodotti{% endif %}</p>
+{%- endif -%}
+<div class="nz-lista" data-pg data-pg-item=".nz-box" data-per="{{ site.per_page | default: 20 }}">
+{%- for b in nz_lista -%}
+{%- assign nz_cb = site.data.catalogo.categorie | where: 'id', b.categoria | first -%}
+{% include negozio-riga.html b=b cat=nz_cb %}
+{%- endfor -%}
+</div>
+<p class="nz-vai"><a class="btn btn-outline-secondary" href="{{ nz_lh | append: 'carrello/' | relative_url }}">Vai al carrello</a></p>
+</div>
+{%- endif -%}

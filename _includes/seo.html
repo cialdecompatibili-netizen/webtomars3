@@ -1,0 +1,101 @@
+{%- comment -%}
+GUIDA-SVILUPPO: SEO DI OGNI PAGINA (title, description, robots, canonical, Open Graph). Incluso da head/custom.html.
+PUNTI CRITICI: og:type diventa 'article' se la pagina ha il campo `date`: per questo pagine e prodotti usano created_at e MAI date (scrive cosi' admin/js/automatico.js).
+La pagina e' noindex se ha noindex:true OPPURE tr: copia (traduzione non ancora fatta): non togliere questa regola, evita contenuti duplicati in Google. I campi seo_* li scrive admin/js/seo-panel.js: stessi nomi.
+Per trovare hreflang e sitemap: cerca 'hreflang' in _includes e il file sitemap.xml alla radice.
+{%- endcomment -%}
+{%- include site-name.html -%}
+{% comment %}
+  SEO PLUGIN — CMSPush
+  Incluso automaticamente da _includes/head/custom.html
+
+  Campi supportati nel front matter di ogni post/pagina:
+    seo_title:       titolo custom per <title> e og:title (se assente usa page.title)
+    seo_description: meta description custom (se assente usa l'inizio del post, poi site.description)
+    seo_image:       immagine Open Graph (se assente usa site.og_image)
+    noindex:         true = esclude la pagina dai motori di ricerca
+    canonical:       URL canonico custom (opzionale)
+{% endcomment %}
+
+{% assign seo_title = page.seo_title | default: page.title %}
+{% assign seo_image = page.seo_image | default: page.header.teaser | default: site.og_image %}
+{% comment %} MULTILINGUA-SEO: lingua della pagina (serve per description e og:locale) {% endcomment %}
+{% assign seo_lang = page.lang | default: site.default_lang %}
+{% assign seo_url   = page.canonical | default: page.url | absolute_url %}
+
+{% comment %} Description: seo_description → inizio del post (excerpt) → descrizione sito {% endcomment %}
+{% if page.seo_description %}
+  {% assign seo_description = page.seo_description %}
+{% elsif page.description %}
+  {% assign seo_description = page.description | strip_html | normalize_whitespace | truncate: 160 %}
+{% elsif page.excerpt %}
+  {% assign seo_description = page.excerpt | strip_html | normalize_whitespace | truncate: 160 %}
+{% else %}
+  {% comment %} description di default: quella del sito per la lingua base; per le altre lingue quella di _data/languages.yml (chiave description). Se manca NON si scrive (meglio nessuna che in italiano su pagina inglese). {% endcomment %}
+  {% if seo_lang == site.default_lang %}
+    {% assign seo_description = site.description %}
+  {% else %}
+    {% assign seo_description = site.data.languages[seo_lang].description %}
+  {% endif %}
+{% endif %}
+
+{% if seo_title %}
+  {% assign seo_title_full = seo_title | append: ' - ' | append: site_name %}
+{% else %}
+  {% assign seo_title_full = site_name %}
+{% endif %}
+
+<!-- CMSPush SEO Plugin -->
+<title>{{ seo_title_full | escape }}</title>
+
+{% comment %} una pagina ancora "copia da tradurre" (tr: copia) NON si indicizza finche' non e' segnata tradotta {% endcomment %}
+{% if page.noindex or page.tr == 'copia' %}
+  <meta name="robots" content="noindex, nofollow">
+{% else %}
+  <meta name="robots" content="index, follow">
+{% endif %}
+
+{% if seo_description %}
+  <meta name="description" content="{{ seo_description | escape }}">
+{% endif %}
+
+{% if seo_url %}
+  <link rel="canonical" href="{{ seo_url }}">
+{% endif %}
+
+<!-- Open Graph -->
+<meta property="og:type"        content="{% if page.date %}article{% else %}website{% endif %}">
+<meta property="og:title"       content="{{ seo_title | escape }}">
+<meta property="og:url"         content="{{ seo_url }}">
+<meta property="og:locale"      content="{{ page.locale | default: seo_lang }}">
+<meta property="og:site_name"   content="{{ site_name | escape }}">
+{% if seo_description %}
+  <meta property="og:description" content="{{ seo_description | truncate: 200 | escape }}">
+{% endif %}
+{% if seo_image %}
+  <meta property="og:image" content="{{ seo_image | absolute_url }}">
+{% endif %}
+
+<!-- Twitter Card -->
+<meta name="twitter:card"  content="summary_large_image">
+<meta name="twitter:title" content="{{ seo_title | escape }}">
+{% if seo_description %}
+  <meta name="twitter:description" content="{{ seo_description | truncate: 200 | escape }}">
+{% endif %}
+{% if seo_image %}
+  <meta name="twitter:image" content="{{ seo_image | absolute_url }}">
+{% endif %}
+{% if site.twitter.username %}
+  <meta name="twitter:site" content="@{{ site.twitter.username }}">
+{% endif %}
+
+<!-- Article meta (solo per i post) -->
+{% if page.date %}
+  <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+  {% if page.last_modified_at %}
+    <meta property="article:modified_time" content="{{ page.last_modified_at | date_to_xmlschema }}">
+  {% endif %}
+  {% for tag in page.tags %}
+    <meta property="article:tag" content="{{ tag | escape }}">
+  {% endfor %}
+{% endif %}

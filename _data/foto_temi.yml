@@ -1,0 +1,3 @@
+# _data/foto_temi.yml - collega una pagina servizio/progetto (slug) ai temi della galleria. Vuoto = tema "team".
+# Esempio:  mio-servizio: "tema1,tema2"
+{}

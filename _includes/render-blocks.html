@@ -1,0 +1,17 @@
+{% comment %}
+  Include generico per il box system. Stampa i box attivi, in ordine, di un file _data/blocks_*.json.
+  Uso: {% include render-blocks.html data="blocks_home" %}
+  Box dinamici: id "features" (Servizi, se esiste almeno un file in _servizi) e id "progetti" (Lavori svolti, da _progetti)
+  leggono le collection e NON usano il campo html. Gestione contenuti: admin > Servizi / Progetti.
+  CRITICO 1: la lingua BASE e' scritta fissa come "it" (riga con page.lang != "it"). Se un clone ha default_lang diverso (es. en alla radice),
+  le pagine non-it cercano i blocchi in _data/i18n/<lingua>/ e quelli della radice non si leggono: tenere it alla radice o cambiare quella riga.
+  CRITICO 2: se per una lingua NON esiste _data/i18n/<lingua>/blocks_home.json si usano i blocchi italiani (la home EN mostra testo IT finche' non la traduci).
+  Esempio: include render-blocks.html con data=blocks_home legge _data/blocks_home.json (it) oppure _data/i18n/en/blocks_home.json (en).
+{% endcomment %}
+{% assign blocks = site.data[include.data] %}
+{% if page.lang and page.lang != "it" %}{% assign lb = site.data.i18n[page.lang][include.data] %}{% if lb %}{% assign blocks = lb %}{% endif %}{% endif %}
+{% for block in blocks %}{% if block.enabled %}
+{% if block.id == 'features' and site.servizi.size > 0 %}{% include home-servizi.html %}
+{% elsif block.id == 'progetti' %}{% include home-progetti.html %}
+{% else %}{{ block.html | replace: '__BASEURL__', site.baseurl }}{% endif %}
+{% endif %}{% endfor %}

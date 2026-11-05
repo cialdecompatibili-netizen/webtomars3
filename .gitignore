@@ -1,0 +1,26 @@
+_site
+.sass-cache
+.jekyll-metadata
+Gemfile.lock
+
+# File privati/interni - mai su repo pubblica
+.claude.md
+automation/agent.md
+automation/publish_log.jsonl
+automation/tmp/
+
+# Impeccable: motore binario (si riscarica da solo al primo uso) e stato locale
+.claude/skills/impeccable/scripts/bin/
+.claude/settings.local.json
+**/.impeccable/config.local.json
+**/.impeccable/hook.cache.json
+**/.impeccable/hook.pending.json
+**/.impeccable/*.png
+**/.impeccable/review/
+**/.impeccable/questions/
+**/.impeccable/live/server.json
+**/.impeccable/live/sessions/
+**/.impeccable/live/previews/
+
+# cache Python
+__pycache__/

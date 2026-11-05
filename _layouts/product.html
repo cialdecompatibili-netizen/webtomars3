@@ -1,0 +1,289 @@
+---
+layout: single
+---
+{%- comment -%}
+GUIDA-SVILUPPO: SCHEDA PRODOTTO DEL SISTEMA "SHOP VECCHIO" (collection `products`, layout: product).
+ATTENZIONE: nel template convivono DUE sistemi shop:
+  - NUOVO (usare questo): collection `negozio`, dati in _data/catalogo.json, pagine in _negozio/, layout negozio-prodotto.html, carrello assets/js/carrello.js.
+  - VECCHIO (questo file): admin > Shop > Prodotti e automation/publish.py scrivono front matter (price, image, ...) con layout: product.
+Per un clone nuovo lavorare solo sul sistema NUOVO. Questo layout legge soprattutto il front matter della pagina (page.*).
+Link fissi /shop/ nel breadcrumb: non seguono la lingua.
+{%- endcomment -%}
+<style>
+*{box-sizing:border-box}
+#page-title{display:none}
+.sp-wrap{display:grid;grid-template-columns:1fr 1fr;gap:2.5em;max-width:1000px;margin:0 auto}
+@media(max-width:700px){.sp-wrap{grid-template-columns:1fr}}
+
+.sp-main-img{width:100%;height:420px;object-fit:cover;border-radius:14px;cursor:zoom-in;transition:opacity .2s}
+.sp-thumbs{display:flex;gap:.6em;margin-top:.8em;flex-wrap:wrap}
+.sp-thumb{width:72px;height:72px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:border-color .2s;opacity:.7}
+.sp-thumb:hover,.sp-thumb.active{border-color:#7fd8e6;opacity:1}
+.sp-no-img{width:100%;height:420px;background:#f5f5f5;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:4em;color:#ccc}
+
+.sp-breadcrumb{font-size:12px;color:#999;margin-bottom:.8em}
+.sp-breadcrumb a{color:#0e7490;text-decoration:none}
+.sp-badge{display:inline-block;font-size:11px;font-weight:700;background:#7fd8e6;color:#15191d;padding:3px 10px;border-radius:20px;margin-bottom:.7em;letter-spacing:.5px;text-transform:uppercase}
+.sp-title{font-size:1.7em;font-weight:800;color:#1a1a2e;margin:0 0 .4em;line-height:1.2}
+.sp-rating{display:flex;align-items:center;gap:.5em;margin-bottom:1em;font-size:14px}
+.sp-stars{color:#f4b942;letter-spacing:1px}
+.sp-rating-num{font-weight:700;color:#333}
+.sp-rating-count{color:#999}
+.sp-price-row{display:flex;align-items:baseline;gap:.8em;margin-bottom:.3em}
+.sp-price{font-size:2.2em;font-weight:800;color:#1a1a2e}
+.sp-price-orig{font-size:1.1em;color:#bbb;text-decoration:line-through}
+.sp-discount{font-size:.85em;background:#ff4757;color:#fff;padding:2px 8px;border-radius:6px;font-weight:700}
+.sp-shipping{font-size:12px;color:#27ae60;margin-bottom:1.2em}
+.sp-divider{border:none;border-top:1px solid #eee;margin:1.2em 0}
+
+.sp-label{font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5em}
+.sp-options{display:flex;flex-wrap:wrap;gap:.5em;margin-bottom:1.1em}
+.sp-opt{padding:6px 16px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;cursor:pointer;color:#333;background:#fff;transition:all .15s}
+.sp-opt:hover{border-color:#7fd8e6;color:#0e7490}
+.sp-opt.selected{border-color:#7fd8e6;background:#7fd8e6;color:#15191d}
+
+.sp-qty-row{display:flex !important;align-items:center !important;gap:1em !important;margin-bottom:1.2em !important;visibility:visible !important}
+.sp-qty{display:flex;align-items:center;border:1.5px solid #ddd;border-radius:8px;overflow:hidden}
+.sp-qty button{width:36px !important;height:40px !important;border:none !important;background:#fff !important;font-size:1.2em !important;cursor:pointer !important;color:#333 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;visibility:visible !important}
+.sp-qty button:hover{background:#f5f5f5}
+.sp-qty input{width:44px;height:40px;border:none;border-left:1.5px solid #ddd;border-right:1.5px solid #ddd;text-align:center;font-size:15px;font-weight:700;color:#1a1a2e;outline:none}
+.sp-btn-cart{flex:1;padding:12px 20px;background:#7fd8e6 !important;color:#15191d !important;border:none !important;border-radius:10px !important;font-size:15px !important;font-weight:700 !important;cursor:pointer !important;transition:background .2s;letter-spacing:.3px;display:inline-block !important;visibility:visible !important;opacity:1 !important;line-height:1.4 !important;text-decoration:none !important;box-shadow:none !important}
+.sp-btn-cart:hover{background:#e6d2ae !important;color:#15191d !important}
+.sp-btn-wish{width:46px !important;height:46px !important;border:1.5px solid #ddd !important;border-radius:10px !important;background:#fff !important;cursor:pointer !important;font-size:1.3em !important;color:#e74c3c !important;transition:all .2s;display:inline-flex !important;align-items:center;justify-content:center;visibility:visible !important}
+.sp-btn-wish:hover{border-color:#e74c3c !important;background:#fff5f5 !important}
+
+.sp-stock{font-size:13px;color:#27ae60;margin-bottom:.8em}
+.sp-stock.low{color:#e67e22}
+
+.sp-tabs{display:flex;gap:0;border-bottom:2px solid #eee;margin-bottom:1.5em}
+.sp-tab{padding:10px 18px;font-size:13px;font-weight:600;color:#999;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.sp-tab.active{color:#0e7490;border-bottom-color:#7fd8e6}
+.sp-tab-content{display:none;font-size:14px;line-height:1.8;color:#444}
+.sp-tab-content.active{display:block}
+
+.sp-review{background:#f9f9f9;border-radius:10px;padding:1em;margin-bottom:.8em}
+.sp-review-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4em}
+.sp-review-name{font-weight:700;font-size:13px;color:#333}
+.sp-review-stars{color:#f4b942;font-size:12px}
+.sp-review-date{font-size:11px;color:#bbb}
+.sp-review-text{font-size:13px;color:#555}
+
+.sp-toast{position:fixed;bottom:2em;left:50%;transform:translateX(-50%) translateY(60px);background:#1a1a2e;color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;opacity:0;transition:all .3s;z-index:9999;pointer-events:none}
+.sp-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.sp-sku{font-size:11px;color:#bbb;margin-top:1em}
+.sp-short-desc{font-size:14px;color:#555;line-height:1.6;margin-bottom:.8em}
+</style>
+
+{% assign p = page %}
+{% if p.gallery %}
+  {% assign gallery_imgs = p.gallery | split: "," %}
+{% elsif p.image %}
+  {% assign gallery_imgs = p.image | split: "|||" %}
+{% else %}
+  {% assign gallery_imgs = "" | split: "," %}
+{% endif %}
+
+{% if p.colors %}{% assign colors = p.colors | split: "," %}{% else %}{% assign colors = "" | split: "," %}{% endif %}
+{% if p.sizes %}{% assign sizes = p.sizes | split: "," %}{% else %}{% assign sizes = "" | split: "," %}{% endif %}
+
+{% assign disc = 0 %}
+{% if p.price_original and p.price %}
+  {% assign disc = 1 | minus: p.price | divided_by: p.price_original | times: 100 | round %}
+{% endif %}
+
+{% assign stock_n = p.stock | default: 0 %}
+{% assign rat = p.rating | default: 0 %}
+{% assign rev_n = p.reviews | default: 0 %}
+{% assign full_stars = rat | round %}
+
+<p class="sp-breadcrumb">
+  <a href="{{ '/shop/' | relative_url }}">Shop</a> /
+  {% if p.category %}<a href="{{ '/shop/categoria/' | append: p.category | append: '/' | relative_url }}">{{ p.category }}</a> / {% endif %}
+  {{ p.title }}
+</p>
+
+<div class="sp-wrap">
+  <div class="sp-gallery">
+    {% if gallery_imgs.size > 0 %}
+      <img id="sp-main-img" class="sp-main-img" src="{{ gallery_imgs[0] | strip }}" alt="{{ p.title }}" onclick="openLightbox(this.src, this.alt)">
+      {% if gallery_imgs.size > 1 %}
+      <div class="sp-thumbs">
+        {% for img in gallery_imgs %}
+        <img class="sp-thumb{% if forloop.first %} active{% endif %}" src="{{ img | strip }}" data-idx="{{ forloop.index0 }}" onclick="switchImg(this,'{{ img | strip }}')" alt="img {{ forloop.index }}">
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% else %}
+      <div class="sp-no-img">📦</div>
+    {% endif %}
+  </div>
+
+  <div class="sp-info">
+    {% if p.badge %}<div class="sp-badge">{{ p.badge }}</div>{% endif %}
+    <h1 class="sp-title">{{ p.title }}</h1>
+    {% if rat > 0 %}
+    <div class="sp-rating">
+      <span class="sp-stars">{% for i in (1..5) %}{% if i <= full_stars %}★{% else %}☆{% endif %}{% endfor %}</span>
+      <span class="sp-rating-num">{{ rat }}</span>
+      <span class="sp-rating-count">({{ rev_n }} recensioni)</span>
+    </div>
+    {% endif %}
+    <div class="sp-price-row">
+      {% if p.price and p.price > 0 %}
+        <span class="sp-price">€ {{ p.price | round: 2 }}</span>
+      {% else %}
+        <span class="sp-price" style="color:#e74c3c;font-size:1em">Prezzo non impostato</span>
+      {% endif %}
+      {% if p.price_original %}<span class="sp-price-orig">€ {{ p.price_original }}</span>{% endif %}
+      {% if disc > 0 %}<span class="sp-discount">-{{ disc }}%</span>{% endif %}
+    </div>
+    {% if p.description %}<p class="sp-short-desc">{{ p.description }}</p>{% endif %}
+    {% if p.shipping %}<div class="sp-shipping">🚚 {{ p.shipping }}</div>{% endif %}
+    <hr class="sp-divider">
+
+    {% if colors.size > 0 %}
+    <div class="sp-label">Colore</div>
+    <div class="sp-options">
+      {% for c in colors %}<button class="sp-opt{% if forloop.first %} selected{% endif %}" data-group="color" onclick="selectOpt('color',this)">{{ c | strip }}</button>{% endfor %}
+    </div>
+    {% endif %}
+
+    {% if sizes.size > 0 %}
+    <div class="sp-label">Taglia</div>
+    <div class="sp-options">
+      {% for s in sizes %}<button class="sp-opt{% if forloop.first %} selected{% endif %}" data-group="size" onclick="selectOpt('size',this)">{{ s | strip }}</button>{% endfor %}
+    </div>
+    {% endif %}
+
+    {% if stock_n > 0 %}
+      <div class="sp-stock{% if stock_n < 10 %} low{% endif %}">
+        {% if stock_n < 10 %}⚠️ Ultimi {{ stock_n }} pezzi disponibili!{% else %}✅ Disponibile — {{ stock_n }} pezzi in magazzino{% endif %}
+      </div>
+    {% else %}
+      <div class="sp-stock" style="color:#e74c3c">❌ Esaurito</div>
+    {% endif %}
+
+    <div class="sp-qty-row">
+      <div class="sp-qty">
+        <button onclick="changeQty(-1)">−</button>
+        <input type="number" id="sp-qty" value="1" min="1" max="{{ stock_n | default: 99 }}">
+        <button onclick="changeQty(1)">+</button>
+      </div>
+      <a href="javascript:void(0)" class="sp-btn-cart" onclick="addToCart()">🛒 Aggiungi al carrello</a>
+      <a href="javascript:void(0)" class="sp-btn-wish" title="Wishlist" onclick="addWish()">♡</a>
+    </div>
+    <hr class="sp-divider">
+    <div class="sp-sku">SKU: {{ p.sku | default: "—" }} &nbsp;|&nbsp; Categoria: <a href="{{ '/shop/categoria/' | append: p.category | append: '/' | relative_url }}" style="color:#0e7490">{{ p.category | default: "—" }}</a></div>
+  </div>
+</div>
+
+<div style="max-width:1000px;margin:2.5em auto 0">
+  <div class="sp-tabs">
+    <div class="sp-tab active" onclick="switchTab('descrizione',this)">Descrizione</div>
+    <div class="sp-tab" onclick="switchTab('recensioni',this)">Recensioni ({{ rev_n | default: 4 }})</div>
+    <div class="sp-tab" onclick="switchTab('spedizione',this)">Spedizione & Resi</div>
+  </div>
+  <div id="tab-descrizione" class="sp-tab-content active">{{ content }}</div>
+  <div id="tab-recensioni" class="sp-tab-content">
+    {% assign demo_reviews = "Marco R.|5|12 apr 2026|Qualità eccezionale, l'ho regalata al mio dentista e ha riso per una settimana intera.;Giulia T.|5|3 mar 2026|Cotone morbidissimo, la stampa tiene benissimo dopo 10 lavaggi. Super consigliata!;Paolo M.|4|18 feb 2026|Bella maglietta, taglia leggermente larga. Prendete una taglia in meno.;Sara B.|5|2 feb 2026|Originalissima, unica nel suo genere. Ho ricevuto mille complimenti al lavoro." | split: ";" %}
+    {% for rv in demo_reviews %}
+      {% assign f = rv | split: "|" %}
+      {% assign f_stars = f[1] | plus: 0 %}
+      <div class="sp-review">
+        <div class="sp-review-head">
+          <span class="sp-review-name">{{ f[0] }}</span>
+          <span class="sp-review-stars">{% for i in (1..5) %}{% if i <= f_stars %}★{% else %}☆{% endif %}{% endfor %}</span>
+        </div>
+        <div class="sp-review-date">{{ f[2] }}</div>
+        <div class="sp-review-text">{{ f[3] }}</div>
+      </div>
+    {% endfor %}
+  </div>
+  <div id="tab-spedizione" class="sp-tab-content">
+    <p>🚚 <strong>Spedizione standard</strong> in 3-5 giorni lavorativi — €4,90</p>
+    <p>⚡ <strong>Spedizione express</strong> in 1-2 giorni — €9,90</p>
+    <p>🎁 <strong>Spedizione gratuita</strong> per ordini superiori a €35</p>
+    <hr style="margin:1em 0;border:none;border-top:1px solid #eee">
+    <p>↩️ <strong>Resi gratuiti</strong> entro 30 giorni dall'acquisto. Il prodotto deve essere nelle condizioni originali.</p>
+  </div>
+</div>
+
+<div style="max-width:1000px;margin:2em auto">
+  <a href="{{ '/shop/' | relative_url }}" style="font-size:13px;color:#0e7490;text-decoration:none">← Torna allo Shop</a>
+</div>
+
+<div id="sp-toast" class="sp-toast"></div>
+
+<script>
+const SLUG = "{{ p.path | split: '/' | last | remove: '.md' }}";
+const TITLE = "{{ p.title | replace: '"', '\"' }}";
+const PRICE = {{ p.price | default: 0 }};
+const IMG = "{% if gallery_imgs.size > 0 %}{{ gallery_imgs[0] | strip }}{% endif %}";
+const TIPO = "{{ p.tipo | default: 'fisico' }}";
+
+function selectOpt(group, el) {
+  document.querySelectorAll(`.sp-opt[data-group="${group}"]`).forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function switchImg(el, src) {
+  document.getElementById('sp-main-img').src = src;
+  document.querySelectorAll('.sp-thumb').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+function changeQty(delta) {
+  const inp = document.getElementById('sp-qty');
+  if (!inp) return;
+  let v = parseInt(inp.value) + delta;
+  inp.value = Math.max(1, v);
+}
+function getCart() {
+  const CART_KEY = (window.SITE_BASE || 'default') + '_cart';
+  try { return JSON.parse(sessionStorage.getItem(CART_KEY) || '[]'); } catch(e){ return []; }
+}
+function saveCart(cart) {
+  const CART_KEY = (window.SITE_BASE || 'default') + '_cart';
+  sessionStorage.setItem(CART_KEY, JSON.stringify(cart));
+}
+function showToast(msg) {
+  const t = document.getElementById('sp-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function addToCart() {
+  const sizeEl  = document.querySelector('.sp-opt[data-group="size"].selected');
+  const colorEl = document.querySelector('.sp-opt[data-group="color"].selected');
+  const qty     = parseInt(document.getElementById('sp-qty')?.value || 1);
+  const item = { slug: SLUG, title: TITLE, price: PRICE, image: IMG, tipo: TIPO, color: colorEl?.textContent || '', size: sizeEl?.textContent || '', qty };
+  const cart = getCart();
+  const existing = cart.find(i => i.slug === item.slug && i.color === item.color && i.size === item.size);
+  if (existing) { existing.qty = (existing.qty||1) + qty; }
+  else { cart.push(item); }
+  saveCart(cart);
+  let msg = `✅ Aggiunto! Qtà: ${qty}`;
+  if (item.color) msg += ` | ${item.color}`;
+  if (item.size)  msg += ` | ${item.size}`;
+  showToast(msg);
+  setTimeout(() => { window.location.href = (window.SITE_BASE || '') + '/shop/carrello/'; }, 1600);
+}
+function addWish() {
+  const btn = document.querySelector('.sp-btn-wish');
+  btn.textContent = '♥';
+  btn.style.color = '#e74c3c';
+  btn.style.background = '#fff5f5';
+  showToast('❤️ Aggiunto alla wishlist!');
+}
+function switchTab(id, el) {
+  document.querySelectorAll('.sp-tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sp-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  el.classList.add('active');
+}
+// Fix bfcache: se la pagina viene ripristinata dalla cache back/forward del browser
+// (es. utente naviga con "Indietro"), gli script non vengono rieseguiti e SLUG/TITLE
+// resterebbero quelli della visita precedente. Forziamo un reload pulito in quel caso.
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) { window.location.reload(); }
+});
+</script>

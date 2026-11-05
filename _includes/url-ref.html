@@ -1,0 +1,11 @@
+{%- comment -%}
+  URL della pagina con `ref` = include.ref, nella lingua della pagina corrente (se manca: lingua base).
+  Serve perche' gli slug cambiano da lingua a lingua (/negozio/ -> /en/shop/): MAI scrivere a mano lo slug di un'altra lingua.
+  Uso: <a href="{% include url-ref.html ref="shop-negozio" %}">...</a>
+{%- endcomment -%}
+{%- assign ur_l = page.lang | default: site.default_lang -%}
+{%- assign ur_all = site.pages | concat: site.documents | where: "ref", include.ref -%}
+{%- assign ur_u = "" -%}
+{%- for a in ur_all -%}{%- if a.lang == ur_l -%}{%- assign ur_u = a.url -%}{%- endif -%}{%- endfor -%}
+{%- if ur_u == "" -%}{%- for a in ur_all -%}{%- if a.lang == site.default_lang -%}{%- assign ur_u = a.url -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+{{- ur_u | relative_url -}}

@@ -1,0 +1,41 @@
+{%- comment -%}
+GUIDA-SVILUPPO: ELENCO di una collection (servizi, progetti...). Parametri: coll="servizi" (nome collection), ord="ordine" (campo di ordinamento), vista="riga" (righe con foto) oppure vuoto (card semplici).
+Le foto delle righe arrivano da _data/foto.yml scegliendo il tema della pagina (_data/foto_temi.yml, slug -> tema); se manca usa il tema "team". Stili in <style> qui dentro.
+{%- endcomment -%}
+{% assign items = site[include.coll] | sort: include.ord %}
+{% if include.vista == "riga" %}
+<style>
+.exr{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem}
+.exr-i{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:1.75rem;align-items:center;padding:1rem;border:1px solid #e3e3e3;border-radius:10px;background:#fff;text-decoration:none!important;color:inherit;transition:border-color .2s,box-shadow .2s}
+.exr-i:hover{border-color:#0e7490;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.exr-img{display:block;aspect-ratio:4/3;overflow:hidden;border-radius:6px;background:#eef8fa}
+.exr-img img{width:100%;height:100%;object-fit:cover;display:block;margin:0}
+.exr-b{display:flex;flex-direction:column;gap:.6rem;padding:.25rem .5rem .25rem 0}
+.exr-t{font-weight:700;font-size:1.4rem;line-height:1.2;color:#111}
+.exr-d{font-size:1rem;line-height:1.55;color:#4a4a4a}
+.exr-c{display:flex;flex-wrap:wrap;gap:.4rem}
+.exr-c b{font-size:.78rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:#0b3b46;background:#efe3cf;padding:.25rem .6rem;border-radius:999px}
+.exr-m{font-size:.95rem;font-weight:700;color:#0e7490}
+@media(max-width:760px){.exr-i{grid-template-columns:1fr;gap:1rem}.exr-b{padding:0 .25rem .5rem}.exr-t{font-size:1.25rem}}
+</style>
+{% assign used = "" | split: "," %}
+<div class="exr">
+{% for s in items %}{% assign ft = s.foto %}{% unless ft %}{% assign tm = site.data.foto_temi[s.slug] | split: "," | first | default: "team" %}{% assign land = site.data.foto | where_exp: "x", "x.w >= x.h" %}{% if tm == "team" %}{% assign pool = land | where: "team", true %}{% else %}{% assign pool = land | where_exp: "x", "x.t contains tm" | where: "team", false %}{% endif %}{% if pool.size == 0 %}{% assign pool = land | where_exp: "x", "x.t contains tm" %}{% endif %}{% if pool.size > 0 %}{% assign cnt = 0 %}{% for u in used %}{% if u == tm %}{% assign cnt = cnt | plus: 1 %}{% endif %}{% endfor %}{% assign idx = cnt | modulo: pool.size %}{% assign ph = pool[idx] %}{% assign ft = ph.f %}{% assign one = tm | split: "," %}{% assign used = used | concat: one %}{% endif %}{% endunless %}<a class="exr-i" href="{{ s.url | relative_url }}">{% if ft %}<span class="exr-img"><img src="{{ '/assets/foto/' | append: ft | append: '.jpg' | relative_url }}" alt="{{ s.title }}" width="1400" height="1050" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}" decoding="async"></span>{% endif %}<span class="exr-b"><span class="exr-t">{{ s.title }}</span><span class="exr-d">{{ s.description | default: s.excerpt | strip_html | strip | truncatewords: 35 }}</span>{% if s.chips %}<span class="exr-c">{% for c in s.chips %}<b>{{ c }}</b>{% endfor %}</span>{% endif %}<span class="exr-m">{{ include.cta | default: "Scopri il lavoro" }} &rarr;</span></span></a>
+{% endfor %}
+</div>
+{% else %}
+<style>
+.exl{--ink:#111;--muted:#5b5b5b;--line:#e3e3e3;--warm:#eef8fa;--acc:#0e7490;max-width:1180px;margin:0 auto}
+.exl-g{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem}
+.exl-c{display:flex;flex-direction:column;gap:.5rem;padding:1.4rem 1.5rem;border:1px solid var(--line);border-radius:10px;background:#fff;text-decoration:none!important;color:inherit;transition:border-color .2s,box-shadow .2s,transform .2s}
+.exl-c:hover{border-color:var(--acc);box-shadow:0 6px 18px rgba(0,0,0,.08);transform:translateY(-2px)}
+.exl-t{font-weight:700;font-size:1.15rem;line-height:1.25;color:var(--ink)}
+.exl-d{font-size:.95rem;line-height:1.5;color:var(--muted);flex:1}
+.exl-m{font-size:.9rem;font-weight:600;color:var(--acc)}
+@media(max-width:700px){.exl-g{grid-template-columns:1fr}}
+</style>
+<div class="exl"><div class="exl-g">
+{% for s in items %}<a class="exl-c" href="{{ s.url | relative_url }}"><span class="exl-t">{{ s.title }}</span><span class="exl-d">{{ s.description | default: s.excerpt | strip_html | strip | truncatewords: 22 }}</span><span class="exl-m">Scopri di pi&ugrave; &rarr;</span></a>
+{% endfor %}
+</div></div>
+{% endif %}

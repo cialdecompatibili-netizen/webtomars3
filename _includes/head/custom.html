@@ -1,0 +1,545 @@
+{%- comment -%}
+GUIDA-SVILUPPO: SOMMARIO DI QUESTO FILE (_includes/head/custom.html, finisce nel head di OGNI pagina). In ordine:
+ 1) SHOP MULTILINGUA: dizionario NZ_DICT da _data/shop_ui.yml (lo applica assets/js/shop-i18n.js) e link ai CSS del sito (menu, post-cover, negozio, gaming).
+ 2) VARIABILI COLORE --t-accent, --t-link ecc. lette da _data/tema.json. E' l'UNICO posto dove cambiare i colori: i valori di ripiego servono solo da sicurezza.
+ 3) CSS INLINE critico (niente lampeggi su menu e footer): icona carrello, dropdown shop, sottomenu, bottone WhatsApp, torna su, immagine articolo, box Indice.
+ 4) INTEGRAZIONI opzionali (GA4, Search Console, Meta Pixel, Hotjar): si accendono da _config.yml > integrations; campo vuoto = spento.
+ 5) JS: BASE url ricavato dall'URL (nessun nome repo fisso), copertina articolo, traduzione delle etichette del tema (Share on, Previous...), INDICE AUTOMATICO (da 3 titoli H2, mai su shop/carrello/ordine), dropdown shop solo desktop.
+ 6) LINGUA PREFERITA DEL BROWSER: redirect solo alla prima visita, solo da pagine in lingua base, mai per i bot (vedi la guida in quel punto).
+REGOLE: dentro le doppie graffe di output di Liquid non scrivere MAI una graffa chiusa (la build si rompe e il sito va giu'). Dopo ogni modifica pubblicare con -Aspetta e controllare la build.
+{%- endcomment -%}
+{%- comment -%} SHOP MULTILINGUA: NZ_DICT = tabella it->lingua della pagina (_data/shop_ui.yml); shop-i18n.js la applica, DEVE stare prima di carrello.js. Pagina italiana: nessun dizionario. {%- endcomment -%}
+{% if site.ecommerce == true %}{% assign nz_d = site.data.shop_ui[page.lang] %}<script>window.NZ_ECOM=true;{% if nz_d %}window.NZ_DICT={{ nz_d | jsonify }};{% endif %}</script><link rel="stylesheet" href="{{ '/assets/css/negozio.css' | relative_url }}"><script src="{{ '/assets/js/shop-i18n.js' | relative_url }}" defer></script><script src="{{ '/assets/js/carrello.js' | relative_url }}" defer></script>{% endif %}
+<link rel="icon" type="image/svg+xml" href="{{ '/assets/images/favicon.svg' | relative_url }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-32.png' | relative_url }}">
+<link rel="shortcut icon" href="{{ '/assets/images/favicon.ico' | relative_url }}">
+<link rel="apple-touch-icon" href="{{ '/assets/images/apple-touch-icon.png' | relative_url }}">
+{% assign t = site.data.tema %}
+<link rel="stylesheet" href="{{ '/assets/css/galleria.css' | relative_url }}" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="{{ '/assets/css/galleria.css' | relative_url }}"></noscript><script src="{{ '/assets/js/galleria.js' | relative_url }}" defer></script><script src="{{ '/assets/js/paginazione.js' | relative_url }}" defer></script>
+{% if page.url == '/' or page.url == '/en/' %}<link rel="preload" as="image" href="{{ '/assets/images/artico-hero.jpg' | relative_url }}" fetchpriority="high">{% endif %}
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@400;600;700&family=Lora:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@400;600;700&family=Lora:wght@400;500;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="{{ '/assets/css/menu.css' | relative_url }}"><link rel="stylesheet" href="{{ '/assets/css/post-cover.css' | relative_url }}" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="{{ '/assets/css/post-cover.css' | relative_url }}"></noscript><link rel="stylesheet" href="{{ '/assets/css/gaming.css' | relative_url }}">
+<style>
+:root {
+  --t-accent:      {{ t.accent      | default: '#0e7490' }};
+  --t-accent-dark: {{ t.accent_dark | default: '#0b3b46' }};
+  --gc-acc:      {{ t.accent      | default: '#0e7490' }};
+  --gc-ink:      {{ t.accent_dark | default: '#0e1116' }};
+  --t-nav-bg:      {{ t.nav_bg      | default: '#ffffff' }};
+  --t-nav-text:    {{ t.nav_text    | default: '#111111' }};
+  --t-nav-hover:   {{ t.nav_hover   | default: '#555555' }};
+  --t-body-bg:     {{ t.body_bg     | default: '#ffffff' }};
+  --t-text:        {{ t.text        | default: '#3a3a3a' }};
+  --t-link:        {{ t.link        | default: '#0e7490' }};
+  --t-font:        {{ t.font        | default: "'Inter', -apple-system, sans-serif" }};
+  --t-radius:      {{ t.radius      | default: '10px' }};
+  --t-font-scale:  {{ t.font_scale  | default: '1' }};
+}
+body, .page__content, .greedy-nav, .page__footer { font-family: var(--t-font) !important; }
+body { font-size: calc(1rem * var(--t-font-scale)); }
+</style>
+<!-- critical-css: inline — zero FOUC su navbar e footer -->
+<style>
+.masthead { border-bottom: 1px solid #e8e8e8 !important; box-shadow: none !important; }
+.greedy-nav { background: var(--t-nav-bg) !important; box-shadow: none !important; border-bottom: none !important; }
+.greedy-nav a.site-title, .greedy-nav .visible-links a { color: var(--t-nav-text) !important; }
+.greedy-nav .visible-links a:hover { color: var(--t-nav-hover) !important; }
+.greedy-nav button { background: transparent !important; color: var(--t-nav-text) !important; }
+.page__footer { background: var(--t-body-bg) !important; border-top: 1px solid #e8e8e8 !important; box-shadow: none !important; margin-top: 1cm !important; }
+.page__footer footer, .page__footer-follow, .page__footer-copyright { background: var(--t-body-bg) !important; }
+.page__footer-follow ul li, .page__footer-follow ul li a, .page__footer-follow strong, .page__footer-copyright a, .page__footer-copyright, .page__footer-custom { color: #5b676e !important; }
+.page__footer-follow ul li a:hover, .page__footer-copyright a:hover { color: var(--t-nav-text) !important; text-decoration: none; }
+/* FIX bottoni shop */
+.page__content button.sp-btn-cart, button.sp-btn-cart { display:inline-flex !important; align-items:center !important; justify-content:center !important; flex:1 !important; padding:12px 20px !important; background:var(--t-accent) !important; color:#fff !important; border:none !important; border-radius:var(--t-radius, 10px) !important; font-size:15px !important; font-weight:700 !important; cursor:pointer !important; letter-spacing:.3px !important; visibility:visible !important; opacity:1 !important; height:auto !important; width:auto !important; min-width:0 !important; line-height:1.4 !important; }
+.page__content button.sp-btn-cart:hover, button.sp-btn-cart:hover { background: var(--t-accent-dark) !important; color: #fff !important; }
+.page__content button.sp-btn-wish, button.sp-btn-wish { display:inline-flex !important; align-items:center !important; justify-content:center !important; width:46px !important; height:46px !important; border:1.5px solid #ddd !important; border-radius:var(--t-radius, 10px) !important; background:#fff !important; cursor:pointer !important; font-size:1.3em !important; color:#e74c3c !important; visibility:visible !important; }
+.page__content .sp-qty button, .sp-qty button { display:inline-flex !important; align-items:center !important; justify-content:center !important; width:36px !important; height:40px !important; border:none !important; background:#fff !important; font-size:1.2em !important; cursor:pointer !important; color:#333 !important; visibility:visible !important; }
+/* ICONA CARRELLO NAVBAR */
+.cart-nav-btn { display:inline-flex !important; align-items:center; gap:4px; background:none !important; border:none !important; cursor:pointer; color:var(--t-nav-text) !important; font-size:15px !important; font-weight:600; text-decoration:none !important; padding:0 8px !important; position:relative; line-height:1; }
+.cart-nav-btn:hover { color: var(--t-accent) !important; }
+.cart-nav-badge {
+  background: #e74c3c;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 50%;
+  min-width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+  position: absolute;
+  top: -6px;
+  right: -2px;
+}
+
+/* DROPDOWN SHOP */
+.has-dropdown { position: relative; }
+.has-dropdown > a::after { content: " ▾"; font-size: 10px; opacity: .6; }
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  border: 1.5px solid #eee;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.10);
+  min-width: 220px;
+  z-index: 9999;
+  padding: 6px 0;
+}
+/* Hover apre il dropdown solo su desktop (dispositivi con mouse reale).
+   Su mobile/touch niente hover: il tocco su "Shop" apre direttamente /shop/. */
+@media (hover: hover) and (pointer: fine) {
+  .has-dropdown:hover .dropdown-menu { display: block; }
+}
+.dropdown-menu a {
+  display: block;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #333 !important;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.dropdown-menu a:hover { background: #eef8fa; color: #0e7490 !important; }
+/* Sfondo sottomenu: bianco (hover azzurro ghiaccio chiarissimo), niente colore scuro del tema */
+.greedy-nav .dropdown-menu,
+.greedy-nav .hidden-links,
+.greedy-nav .has-dropdown .dropdown-menu { background: #fff !important; border-color: #eee !important; }
+.greedy-nav .dropdown-menu a,
+.greedy-nav .hidden-links a,
+.greedy-nav .hidden-links li { background: #fff !important; color: #333 !important; }
+.greedy-nav .dropdown-menu a:hover,
+.greedy-nav .hidden-links a:hover { background: #eef8fa !important; color: #0e7490 !important; }
+.dropdown-menu .dropdown-sep {
+  border-top: 1px solid #eee;
+  margin: 4px 0;
+}
+.dropdown-menu .dropdown-label {
+  padding: 6px 16px 2px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: #bbb;
+}
+
+/* BOTTONE WHATSAPP (sopra il torna su, sempre visibile) */
+#wa-btn {
+  position: fixed;
+  bottom: 82px;
+  right: 24px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #25D366;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,.22);
+  z-index: 9998;
+  transition: background .2s, transform .2s;
+}
+#wa-btn:hover { background: #1ebe5b; transform: scale(1.06); }
+#wa-btn svg { width: 26px; height: 26px; fill: currentColor; }
+@media (max-width: 600px) {
+  #wa-btn { bottom: 68px; right: 16px; width: 42px; height: 42px; }
+  #wa-btn svg { width: 24px; height: 24px; }
+}
+/* BOTTONE TORNA SU */
+#back-to-top-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--t-accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity .25s, transform .25s, background .2s;
+  z-index: 9998;
+}
+#back-to-top-btn.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+#back-to-top-btn:hover { background: var(--t-accent-dark); }
+@media (max-width: 600px) {
+  #back-to-top-btn { bottom: 16px; right: 16px; width: 42px; height: 42px; font-size: 18px; }
+}
+
+/* IMMAGINE ARTICOLO — dentro il box, non full-width in cima (fix 2026-07-04) */
+.page__hero { display: none !important; }
+.article-inline-meta-img {
+  display: block;
+  max-width: 260px;
+  width: 100%;
+  height: auto;
+  border-radius: var(--t-radius, 10px);
+  box-shadow: 0 2px 10px rgba(0,0,0,.10);
+  float: right;
+  margin: 4px 0 12px 20px;
+}
+.article-inline-caption {
+  display: block;
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+  margin-top: 6px;
+  float: right;
+  max-width: 260px;
+  clear: right;
+}
+@media (max-width: 600px) {
+  .article-inline-meta-img, .article-inline-caption { float: none; max-width: 100%; margin: 12px 0; }
+}
+.page__meta-category a {
+  color: var(--t-accent) !important;
+  text-decoration: none;
+  font-weight: 600;
+}
+.page__meta-category a:hover { text-decoration: underline; }
+
+/* INDICE: box con filo sottile e etichetta "Indice" a pillola.
+   Il markup lo genera il JS "INDICE AUTOMATICO" qui sotto (nav.article-auto-toc > p.article-auto-toc__title + ol).
+   Vale per blog e servizi (stesso .page__content). Per cambiare colori/bordo toccare solo questo blocco. */
+.article-auto-toc + h2,.article-auto-toc + h3{margin-top:1.1em !important}
+.article-auto-toc{position:relative;display:table;max-width:100%;min-width:180px;margin:1.8rem 0 1.1rem;padding:1.3rem 1.4rem 1rem;border:1px solid rgba(0,0,0,.12);border-radius:12px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.article-auto-toc__title{position:absolute;top:0;left:1.2rem;transform:translateY(-50%);margin:0;padding:.1rem .8rem;border:1px solid rgba(0,0,0,.12);border-radius:999px;background:#fff;font-size:.85rem;font-weight:700;letter-spacing:.04em;line-height:1.4}
+.article-auto-toc ol{list-style:none;margin:0;padding:0}
+.article-auto-toc li{margin:0;font-size:inherit}
+.article-auto-toc a{display:block;padding:.2rem 0;line-height:1.35;font-weight:600;color:var(--t-link,#0e7490);text-decoration:none}
+.article-auto-toc a:hover{text-decoration:underline}
+.article-auto-toc ol ol{margin:.05rem 0 .3rem .9rem;padding-left:.7rem}
+.article-auto-toc ol ol a{font-weight:400}
+@media (max-width:576px){.article-auto-toc{padding:1.2rem 1rem .9rem}}
+</style>
+
+{% if site.integrations.ga4.enabled and site.integrations.ga4.id != "" %}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ site.integrations.ga4.id }}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ site.integrations.ga4.id }}');</script>
+{% endif %}
+
+{% if site.integrations.search_console.enabled and site.integrations.search_console.verification != "" %}
+<meta name="google-site-verification" content="{{ site.integrations.search_console.verification }}" />
+{% endif %}
+
+{% if site.integrations.meta_pixel.enabled and site.integrations.meta_pixel.id != "" %}
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','{{ site.integrations.meta_pixel.id }}');fbq('track','PageView');</script>
+{% endif %}
+
+{% if site.integrations.hotjar.enabled and site.integrations.hotjar.id != "" %}
+<script>(function(h,o,t,j,a,r){h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};h._hjSettings={hjid:{{ site.integrations.hotjar.id }},hjsv:6};a=o.getElementsByTagName('head')[0];r=o.createElement('script');r.async=1;r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;a.appendChild(r)})(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');</script>
+{% endif %}
+
+<script>
+// BASE rilevato dinamicamente dall'URL — identico a detectRepo() dell'admin.
+// Funziona su qualsiasi repo senza toccare _config.yml.
+// Es: pippo.github.io/miosito/ → BASE = '/miosito'
+// Es: pippo.github.io/ → BASE = ''
+(function(){
+  var p = location.pathname; // es. /miosito/shop/carrello/
+  var parts = p.split('/').filter(Boolean); // ['miosito','shop','carrello']
+  var h = location.hostname;
+  var isGhPages = /\.github\.io$/.test(h);
+  // Se github.io e il primo segmento non è una pagina interna conosciuta → è il repo
+  var knownRoots = ['admin','shop','blog','_pages','assets'];
+  window.SITE_BASE = (isGhPages && parts.length > 0 && knownRoots.indexOf(parts[0]) === -1)
+    ? '/' + parts[0]
+    : '';
+})();
+
+document.addEventListener('DOMContentLoaded', function(){
+  var BASE = window.SITE_BASE;
+
+  // --- SPOSTA COPYRIGHT DOPO SOCIAL ---
+  var custom = document.querySelector('.page__footer-custom');
+  var follow = document.querySelector('.page__footer-follow');
+  if (custom && follow && follow.nextSibling !== custom) {
+    follow.parentNode.insertBefore(custom, follow.nextSibling);
+  }
+
+  // --- BOTTONE TORNA SU ---
+  var btn = document.createElement('button');
+  btn.id = 'back-to-top-btn';
+  btn.setAttribute('aria-label', 'Torna su');
+  btn.innerHTML = '&uarr;';
+  document.body.appendChild(btn);
+
+  function toggleBackToTop() {
+    if (window.scrollY > 400) {
+      btn.classList.add('visible');
+    } else {
+      btn.classList.remove('visible');
+    }
+  }
+  btn.addEventListener('click', function(){
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  window.addEventListener('scroll', toggleBackToTop);
+  toggleBackToTop();
+
+  // --- IMMAGINE ARTICOLO: float a destra sul primo paragrafo, stile Wikipedia (fix 2026-07-04) ---
+  (function(){
+    var hero = document.querySelector('.page__hero');
+    var content = document.querySelector('.page__content');
+    if (!hero || !content) return; // pagina senza immagine o senza contenuto, niente da fare
+
+    var img = hero.querySelector('.page__hero-image');
+    var caption = hero.querySelector('.page__hero-caption');
+    if (!img) return;
+
+    var wrap = document.createElement('div');
+    var small = document.createElement('img');
+    small.src = img.src;
+    small.alt = img.alt;
+    small.className = 'article-inline-meta-img';
+    wrap.appendChild(small);
+
+    if (caption) {
+      var cap = document.createElement('span');
+      cap.className = 'article-inline-caption';
+      cap.textContent = caption.textContent.trim();
+      wrap.appendChild(cap);
+    }
+
+    // Inserisce l'immagine (con float:right via CSS) subito prima del primo paragrafo del contenuto
+    var firstP = content.querySelector('p, h2');
+    if (firstP) {
+      content.insertBefore(wrap, firstP);
+    } else {
+      content.insertBefore(wrap, content.firstChild);
+    }
+  })();
+
+  // --- CATEGORIA cliccabile accanto a "readtime" nel box meta ---
+  (function(){
+    var meta = document.querySelector('.page__meta');
+    if (!meta) return;
+    var catLink = document.querySelector('.page__taxonomy a.page__taxonomy-item');
+    if (!catLink) return; // pagina senza categoria (es. prodotti)
+    var span = document.createElement('span');
+    span.className = 'page__meta-category';
+    span.innerHTML = ' · <a href="' + catLink.getAttribute('href') + '">' + catLink.textContent.trim() + '</a>';
+    meta.appendChild(span);
+  })();
+
+  // --- TRADUZIONE "X minute read" -> "X minuto/i di lettura" (2026-07-04) ---
+  (function(){
+    var rt = document.querySelector('.page__meta-readtime');
+    if (!rt) return;
+    var testo = rt.textContent;
+    var match = testo.match(/(\d+)\s*minute read/i);
+    if (match) {
+      var n = parseInt(match[1], 10);
+      var nuovoTesto = n === 1 ? '1 minuto di lettura' : n + ' minuti di lettura';
+      testo = testo.replace(/\d+\s*minute read/i, nuovoTesto);
+    } else if (/less than 1 minute read/i.test(testo)) {
+      testo = testo.replace(/less than 1 minute read/i, 'meno di 1 minuto di lettura');
+    }
+    var icon = rt.querySelector('i');
+    rt.textContent = testo.trim();
+    if (icon) rt.insertBefore(icon, rt.firstChild);
+  })();
+
+  // --- TRADUZIONE resto UI in italiano (2026-07-04) ---
+  (function(){
+    function traduciTesto(selettore, sostituzioni) {
+      document.querySelectorAll(selettore).forEach(function(el){
+        sostituzioni.forEach(function(pair){
+          if (el.childNodes.length) {
+            el.childNodes.forEach(function(node){
+              if (node.nodeType === 3 && node.textContent.indexOf(pair[0]) !== -1) {
+                node.textContent = node.textContent.replace(pair[0], pair[1]);
+              }
+            });
+          }
+        });
+      });
+    }
+
+    // Categories: (le etichette delle date Pubblicato/Aggiornato sono ora tradotte da _includes/page__date.html + _data/date_ui.yml: NON ritradurle qui)
+    traduciTesto('.page__taxonomy strong', [['Categories:', 'Categorie:']]);
+
+    // Previous / Next (paginazione articolo)
+    document.querySelectorAll('.pagination--pager').forEach(function(a){
+      var t = a.textContent.trim();
+      if (t === 'Previous') a.textContent = 'Precedente';
+      if (t === 'Next') a.textContent = 'Successivo';
+    });
+
+    // Share on (titolo box condivisione)
+    document.querySelectorAll('.page__share-title').forEach(function(el){
+      if (el.textContent.trim() === 'Share on') el.textContent = 'Condividi su';
+    });
+
+    // Toggle search / Toggle menu (aria/testo nascosto accessibilita')
+    document.querySelectorAll('.visually-hidden').forEach(function(el){
+      var t = el.textContent.trim();
+      if (t === 'Toggle search') el.textContent = 'Attiva ricerca';
+      if (t === 'Toggle menu') el.textContent = 'Attiva menu';
+    });
+
+    // Enter your search term...
+    var searchInput = document.getElementById('search');
+    if (searchInput) {
+      searchInput.placeholder = 'Scrivi il termine da cercare...';
+      var searchLabel = document.querySelector('label[for="search"]');
+      if (searchLabel) searchLabel.textContent = 'Scrivi il termine da cercare...';
+    }
+
+    // You May Also Enjoy (sezione articoli correlati)
+    document.querySelectorAll('.page__related-title').forEach(function(el){
+      if (el.textContent.trim() === 'You May Also Enjoy') el.textContent = 'Potrebbe interessarti anche';
+    });
+
+    // Follow (bio autore sidebar) / Website (link social generico)
+    document.querySelectorAll('.author__urls-wrapper .btn').forEach(function(el){
+      if (el.textContent.trim() === 'Follow') el.textContent = 'Segui';
+    });
+    document.querySelectorAll('.author__urls .label').forEach(function(el){
+      if (el.textContent.trim() === 'Website') el.textContent = 'Sito web';
+    });
+
+    // Powered by Jekyll & Minimal Mistakes (footer copyright)
+    var footerCopy = document.querySelector('.page__footer-copyright');
+    if (footerCopy) {
+      footerCopy.childNodes.forEach(function(node){
+        if (node.nodeType === 3 && node.textContent.indexOf('Powered by') !== -1) {
+          node.textContent = node.textContent.replace('Powered by', 'Realizzato con');
+        }
+      });
+    }
+  })();
+
+  // --- INDICE AUTOMATICO stile Wikipedia (riattivato 17/09/2026) ---
+  // Scatta da solo quando l'articolo ha almeno 3 H2. REGOLA: negli articoli si usano solo H2
+  // (publish.py abbassa automaticamente ogni ### a ##).
+  (function(){
+    var content = document.querySelector('.page__content');
+    if (!content) return;
+    // Niente indice su shop, carrello, ordine, grazie, schede prodotto/categoria (hanno elementi nz-*): solo articoli e pagine normali.
+    if (content.querySelector('[id^="nz-"],[class*="nz-"]') || {{ page.ecommerce | default: false | jsonify }} === true) return;
+    // H2 = voci principali, H3 = sottovoci rientrate (15/10/2026). La soglia (>=3) conta solo gli H2.
+    // Gli H3 prima di qualunque H2 diventano voci di primo livello (vedi !lastTopLi sotto).
+    var headings = Array.prototype.slice.call(content.querySelectorAll('h2, h3'));
+    var h2Count = headings.filter(function(h){ return h.tagName === 'H2'; }).length;
+    if (h2Count < 3) return;
+
+    var toc = document.createElement('nav');
+    toc.className = 'article-auto-toc';
+    var title = document.createElement('p');
+    title.className = 'article-auto-toc__title';
+    title.textContent = {{ page.lang | default: site.default_lang | jsonify }} === 'en' ? 'Contents' : 'Indice';
+    toc.appendChild(title);
+
+    var ol = document.createElement('ol');
+    var subList = null, lastTopLi = null;
+    headings.forEach(function(h){
+      if (!h.id) {
+        h.id = h.textContent.trim().toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/\s+/g, '-');
+      }
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      if (h.tagName === 'H2' || !lastTopLi) {
+        ol.appendChild(li);
+        if (h.tagName === 'H2') { lastTopLi = li; subList = null; }
+      } else {
+        if (!subList) { subList = document.createElement('ol'); lastTopLi.appendChild(subList); }
+        subList.appendChild(li);
+      }
+    });
+    toc.appendChild(ol);
+
+    var first = headings[0];
+    first.parentNode.insertBefore(toc, first);
+  })();
+
+  // --- DROPDOWN SHOP (generato da _data/shop_nav.yml via Liquid) ---
+  var shopCats = [{% for item in site.data.shop_nav.categories %}{"title":"{{ item.title }}","url":"{{ item.url }}"}{% unless forloop.last %},{% endunless %}{% endfor %}];
+  var shopFeatured = [{% for item in site.data.shop_nav.featured %}{"title":"{{ item.title }}","url":"{{ item.url }}"}{% unless forloop.last %},{% endunless %}{% endfor %}];
+
+  // Dropdown Shop SOLO sul menu desktop (.visible-links).
+  // Sul menu mobile (.hidden-links, hamburger) niente dropdown: "Shop" resta
+  // un link semplice, altrimenti le categorie comparivano annidate e slegate
+  // sotto "Shop" nel menu a tendina mobile (bug segnalato 14/09/2026).
+  var links = document.querySelectorAll('.greedy-nav .visible-links a');
+  links.forEach(function(a){
+    if(a.textContent.trim() === 'Shop'){
+      var li = a.parentElement;
+      li.classList.add('has-dropdown');
+      var catHTML = shopCats.map(function(i){ return '<a href="'+BASE+i.url+'">'+i.title+'</a>'; }).join('');
+      var featHTML = shopFeatured.length ? '<div class="dropdown-sep"></div><div class="dropdown-label">In evidenza</div>' + shopFeatured.map(function(i){ return '<a href="'+BASE+i.url+'">'+i.title+'</a>'; }).join('') : '';
+      li.innerHTML = '<a href="' + a.href + '">Shop</a>' +
+        '<div class="dropdown-menu">' +
+          '<div class="dropdown-label">Categorie</div>' +
+          catHTML + featHTML +
+        '</div>';
+    }
+  });
+});
+</script>
+{%- comment -%}
+  MULTILINGUA (SEO + lingua browser). Alternativa = pagina con lo stesso `ref` in un'altra lingua.
+  - hreflang: SOLO versioni gia' tradotte (le `tr: copia` sono noindex e non vanno dichiarate); x-default = lingua base.
+  - robots/noindex per le "copia": lo gestisce _includes/seo.html (un solo meta robots).
+  - redirect lingua browser: vedi lo script qui sotto. NON toccare i nomi window.* e la chiave localStorage lang_pref.
+{%- endcomment -%}
+{%- if page.ref and page.tr != 'copia' -%}
+{%- assign ml_all = site.pages | concat: site.documents | where: "ref", page.ref -%}
+{%- assign ml_n = 0 -%}
+{%- capture ml_json -%}{%- for a in ml_all -%}{%- if a.tr == 'copia' or a.noindex -%}{%- continue -%}{%- endif -%}{%- assign ml_n = ml_n | plus: 1 -%}"{{ a.lang | default: site.default_lang }}":"{{ a.url | relative_url }}",{%- endfor -%}{%- endcapture -%}
+{%- if ml_n > 1 -%}
+{%- for a in ml_all -%}{%- if a.tr == 'copia' or a.noindex -%}{%- continue -%}{%- endif -%}{%- assign ml_al = a.lang | default: site.default_lang -%}<link rel="alternate" hreflang="{{ ml_al }}" href="{{ a.url | absolute_url }}">{%- if ml_al == site.default_lang -%}<link rel="alternate" hreflang="x-default" href="{{ a.url | absolute_url }}">{%- endif -%}{%- endfor -%}
+<script>
+/* LINGUA PREFERITA DEL BROWSER (solo prima visita, solo da pagine in lingua base).
+   - A = {lingua: url} delle versioni tradotte di QUESTA pagina (se non c'e' la versione, resta dov'e').
+   - localStorage lang_pref = scelta ricordata: la scelta manuale col selettore (bandiera) vince sempre.
+   - niente redirect per bot/anteprime, con ?nolang=1, o se arrivi da un'altra pagina dello stesso sito. */
+(function () {
+  try {
+    // ATTENZIONE LIQUID: dentro le doppie graffe di output NON scrivere mai una graffa chiusa (nemmeno come stringa): Liquid la legge come fine tag
+    // e la BUILD SI ROMPE (sito giu'). Per questo l'oggetto JS qui sotto e' aperto FUORI dalle doppie graffe. NON scrivere doppie graffe nei commenti.
+    // Dopo ogni modifica a questo file: push con -Aspetta e controllare la build.
+    var A = { {{ ml_json }}"_":"" }, DEF = '{{ site.default_lang }}', CUR = '{{ page.lang | default: site.default_lang }}', K = 'lang_pref';
+    document.addEventListener('click', function (e) {
+      var a = e.target && e.target.closest ? e.target.closest('a.nv__lang-item, .lang-switch a') : null;
+      if (a && a.getAttribute('hreflang')) { try { localStorage.setItem(K, a.getAttribute('hreflang')); } catch (x) {} }
+    }, true);
+    if (CUR !== DEF) return;
+    if (/[?&]nolang=1/.test(location.search)) return;
+    if (navigator.webdriver || /bot|crawl|spider|slurp|lighthouse|pagespeed|headless|preview|facebookexternalhit/i.test(navigator.userAgent)) return;
+    var pref = localStorage.getItem(K), pick = null;
+    if (pref) { pick = pref; }
+    else {
+      if (document.referrer && document.referrer.indexOf(location.origin) === 0) return;
+      var ls = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ''];
+      for (var i = 0; i < ls.length; i++) {
+        var p = String(ls[i]).toLowerCase(), b = p.split('-')[0];
+        var hit = A[p] !== undefined ? p : (A[b] !== undefined ? b : (b === DEF ? DEF : null));
+        if (hit) { pick = hit; break; }
+      }
+      if (pick && pick !== DEF && A[pick]) localStorage.setItem(K, pick);
+    }
+    if (pick && pick !== DEF && A[pick]) location.replace(A[pick] + location.search + location.hash);
+  } catch (e) {}
+})();
+</script>
+{%- endif -%}
+{%- endif -%}

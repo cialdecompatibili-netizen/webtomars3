@@ -1,0 +1,35 @@
+{%- comment -%}
+  DATE DELL'ARTICOLO/PAGINA nel piede: "Pubblicato: <data> · Aggiornato: <data>". SOVRASCRIVE _includes/page__date.html del tema (Minimal Mistakes).
+  Legge: page.date (= pubblicazione, front matter `date`) e page.last_modified_at (= ultimo aggiornamento, lo scrive l'admin da solo a ogni salvataggio, vedi admin/js/automatico.js).
+  Regole: "Pubblicato" solo se c'e' `date`; "Aggiornato" solo se c'e' last_modified_at E cade in un giorno diverso dalla pubblicazione (niente doppione).
+  Etichette e nomi dei mesi per lingua: _data/date_ui.yml (lingua = page.lang, ripiego su inglese). NON usare date: "%B": esce sempre in inglese.
+  Classe page__date: la usa anche il JS in _includes/head/custom.html (traduciTesto) - non rinominare.
+{%- endcomment -%}
+{%- assign _dl = page.lang | default: site.default_lang | default: 'it' -%}
+{%- assign _dt = site.data.date_ui[_dl] | default: site.data.date_ui.en -%}
+{%- assign _tipi = 'pub|upd' | split: '|' -%}
+{%- assign _n = 0 -%}
+{%- capture _date_out -%}
+{%- for _k in _tipi -%}
+  {%- if _k == 'pub' -%}
+    {%- assign _d = page.date -%}{%- assign _lab = _dt.pubblicato -%}
+  {%- else -%}
+    {%- assign _d = page.last_modified_at -%}{%- assign _lab = _dt.aggiornato -%}
+    {%- assign _g1 = _d | date: '%Y-%m-%d' -%}{%- assign _g0 = page.date | date: '%Y-%m-%d' -%}
+    {%- if _g1 == _g0 -%}{%- continue -%}{%- endif -%}
+  {%- endif -%}
+  {%- unless _d -%}{%- continue -%}{%- endunless -%}
+  {%- if _n > 0 %} <span class="page__date-sep" aria-hidden="true">&middot;</span> {% endif -%}
+  <span class="page__date-{{ _k }}"><strong>{{ _lab }}</strong> <time datetime="{{ _d | date_to_xmlschema }}"{% if _k == 'pub' %} class="dt-published"{% else %} class="dt-updated"{% endif %}>
+  {%- if _dt.mesi -%}
+    {%- assign _mi = _d | date: '%-m' | minus: 1 -%}{{ _d | date: '%-d' }} {{ _dt.mesi[_mi] }} {{ _d | date: '%Y' }}
+  {%- else -%}
+    {{ _d | date: '%d/%m/%Y' }}
+  {%- endif -%}
+  </time></span>
+  {%- assign _n = _n | plus: 1 -%}
+{%- endfor -%}
+{%- endcapture -%}
+{%- if _n > 0 -%}
+<p class="page__date">{{ _date_out }}</p>
+{%- endif -%}

@@ -1,0 +1,8 @@
+# Riquadro "foto + presentazione" in cima alla barra laterale degli articoli.
+# Compare solo se "foto" e' compilata. Esempio:
+#   foto: /assets/images/chi-siamo.jpg
+#   titolo: "Nome Sito"
+#   testo: "Una frase che presenta il sito."
+foto: ""
+titolo: ""
+testo: ""

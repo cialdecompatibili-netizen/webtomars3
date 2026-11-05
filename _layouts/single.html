@@ -1,0 +1,119 @@
+---
+layout: default
+---
+{%- comment -%}
+GUIDA-SVILUPPO: LAYOUT "single" = pagina standard del sito (pagine _pages e en/, articoli _posts, servizi/progetti; i layout negozio-* lo estendono).
+Estende il layout del tema (minimal-mistakes, remote_theme). ORDINE di cio' che stampa: hero (se header.overlay_*), briciole, titolo, contenuto,
+[solo servizi/progetti: galleria foto + FAQ + CTA], piede (tassonomia + date da page__date.html), share (solo se page.share), paginazione,
+barra laterale articoli (post-sidebar.html, solo per i post), articoli correlati, "altri servizi".
+NON TOCCARE: la classe has-postside su #main (la usa post-sidebar.html) e posts_l (articoli della lingua della pagina: ogni articolo deve avere lang).
+PER CAMBIARE COSA COMPARE usa il front matter della pagina (header, share, related, breadcrumbs), non questo file. Testi di interfaccia: _data/ui-text.yml.
+{%- endcomment -%}
+{%- assign posts_l = site.posts | where: "lang", page.lang -%}
+{%- assign locale = page.locale | default: layout.locale | default: site.locale %}
+
+{% if page.header.overlay_color or page.header.overlay_image or page.header.image %}
+  {% include page__hero.html locale=locale %}
+{% elsif page.header.video.id and page.header.video.provider %}
+  {% include page__hero_video.html %}
+{% endif %}
+
+{% assign breadcrumbs_enabled = site.breadcrumbs %}
+{% if page.breadcrumbs != null %}
+  {% assign breadcrumbs_enabled = page.breadcrumbs %}
+{% endif %}
+{% if page.url != "/" and breadcrumbs_enabled %}
+  {% unless paginator %}
+    {% include breadcrumbs.html locale=locale %}
+  {% endunless %}
+{% endif %}
+
+<div id="main" role="main"{% if page.collection == "posts" %} class="has-postside"{% endif %}>
+  {% include sidebar.html locale=locale %}
+
+  <article class="page h-entry" itemscope itemtype="https://schema.org/CreativeWork"{% if page.locale %} lang="{{ page.locale }}"{% endif %}>
+    {% if page.title %}<meta itemprop="headline" content="{{ page.title | replace: '|', '&#124;' | markdownify | strip_html | strip_newlines | escape_once }}">{% endif %}
+    {% if page.excerpt %}<meta itemprop="description" content="{{ page.excerpt | markdownify | strip_html | strip_newlines | escape_once }}">{% endif %}
+    {% if page.date %}<meta itemprop="datePublished" content="{{ page.date | date_to_xmlschema }}">{% endif %}
+    {% if page.last_modified_at %}<meta itemprop="dateModified" content="{{ page.last_modified_at | date_to_xmlschema }}">{% endif %}
+
+    <div class="page__inner-wrap">
+      {% unless page.header.overlay_color or page.header.overlay_image %}
+        <header>
+          {% if page.title -%}
+          <h1 id="page-title" class="page__title p-name" itemprop="headline">
+            <a href="{{ page.url | absolute_url }}" itemprop="url">{{ page.title | markdownify | remove: "<p>" | remove: "</p>" }}</a>
+          </h1>
+          {%- endif %}
+          {% include page__meta.html locale=locale %}
+        </header>
+      {% endunless %}
+
+      <section class="page__content e-content" itemprop="text">
+        {%- comment -%} Indice sidebar disattivato 17/09/2026 — sostituito dall'indice inline stile Wikipedia via JS (solo H2, soglia >=3), vedi _includes/head/custom.html {%- endcomment -%}
+        {%- assign show_toc = false -%}
+        {% if show_toc %}
+          <aside class="sidebar__right {% if page.toc_sticky %}sticky{% endif %}">
+            <nav class="toc" aria-label="Table of contents">
+              <header><h4 class="nav__title"><i class="fas fa-{{ page.toc_icon | default: 'file-alt' }}"></i> {{ page.toc_label | default: site.data.ui-text[locale].toc_label | default: "Indice" }}</h4></header>
+              {% include toc.html sanitize=true html=content h_min=1 h_max=6 class="toc__menu" skip_no_ids=true %}
+            </nav>
+          </aside>
+        {% endif %}
+        {%- comment -%} Copertina articolo: header.teaser in testa, adattiva (mai ritagliata, mai oltre la sua dimensione). {%- endcomment -%}
+        {% if page.collection == "posts" and page.header.teaser and page.header.image == nil and page.header.overlay_image == nil %}
+          {% assign cover_file = page.header.teaser | split: "/" | last %}
+          {% unless content contains cover_file %}
+            {% if page.header.teaser contains "://" %}{% assign cover_src = page.header.teaser %}{% else %}{% assign cover_src = page.header.teaser | relative_url %}{% endif %}
+            <figure class="post-cover"><img src="{{ cover_src }}" alt="{{ page.header.teaser_alt | default: page.title | escape }}" decoding="async" fetchpriority="high"></figure>
+          {% endunless %}
+        {% endif %}
+        {{ content }}
+        {%- comment -%} Pagine servizio: FAQ + dati strutturati, poi blocco CTA finale (WhatsApp, telefono, modulo) {%- endcomment -%}
+        {% if page.collection == "servizi" or page.collection == "progetti" %}
+          {% assign ft = site.data.foto_temi[page.slug] | default: "team" %}
+          {% include ex-galleria.html temi=ft max=6 gruppo="pagina" %}
+        {% endif %}
+        {% if page.collection == "servizi" %}
+          {% include servizio-faq.html %}
+          {% include servizio-cta.html %}
+        {% endif %}
+        {% if page.link %}<div><a href="{{ page.link }}" class="btn btn--primary">{{ site.data.ui-text[locale].ext_link_label | default: "Direct Link" }}</a></div>{% endif %}
+      </section>
+
+      <footer class="page__meta">
+        {% if site.data.ui-text[locale].meta_label %}
+          <h4 class="page__meta-title">{{ site.data.ui-text[locale].meta_label }}</h4>
+        {% endif %}
+        {% include page__taxonomy.html locale=locale %}
+        {% include page__date.html locale=locale %}
+      </footer>
+
+      {% if page.share %}{% include social-share.html locale=locale %}{% endif %}
+
+      {% include post_pagination.html locale=locale %}
+    </div>
+
+    {% if site.comments.provider and page.comments %}
+      {% if jekyll.environment == 'production' %}
+        {% include comments.html locale=locale %}
+      {% else %}
+        <p>Comments are configured but disabled in non-production environments.</p>
+      {% endif %}
+    {% endif %}
+  </article>
+
+  {% if page.collection == "posts" %}{% include post-sidebar.html %}{% endif %}
+
+  {% if page.id and page.related and site.related_posts.size > 0 %}
+    {% include page__related.html locale=locale posts=site.related_posts %}
+  {% elsif page.id and page.related %}
+    {% assign related_limited = posts_l | limit: 3 %}
+    {% include page__related.html locale=locale posts=related_limited %}
+  {% endif %}
+
+  {%- comment -%} Pagine servizio: in fondo le card degli altri servizi (stessa grafica delle card del blog) {%- endcomment -%}
+  {% if page.collection == "servizi" %}
+    {% include servizi-correlati.html %}
+  {% endif %}
+</div>

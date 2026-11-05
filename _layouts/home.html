@@ -1,0 +1,91 @@
+---
+layout: default
+---
+{%- comment -%}
+GUIDA-SVILUPPO: LAYOUT LEGACY, NON USATO. La home vera e' index.html e en/index.html con layout "default" + _includes/home-content.html, che stampa
+i blocchi di _data/blocks_home.json (modificabili da admin > Home). Questo file (slider .lx) arriva da un sito precedente: NON modificarlo per cambiare la home.
+Si puo' cancellare dopo aver controllato che nessuna pagina abbia "layout: home".
+{%- endcomment -%}
+<style>
+.lx * { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* SLIDER */
+.lx-slider { position: relative; width: 100%; height: 560px; overflow: hidden; background: #f7f6f4; }
+.lx-slide { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 1s ease; }
+.lx-slide.active { opacity: 1; }
+.lx-slide-bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.lx-slide-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.55); }
+.lx-slide-content { position: relative; text-align: center; padding: 2.5rem 2rem; max-width: 680px; }
+.lx-slide-eyebrow { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: #aaa; margin-bottom: 1.5rem; }
+.lx-slide-title { font-size: 54px; font-weight: 300; line-height: 1.1; letter-spacing: -0.03em; color: #111; margin-bottom: 1rem; }
+.lx-slide-title em { font-style: italic; color: #999; }
+.lx-slide-sub { font-size: 16px; color: #888; letter-spacing: 0.01em; line-height: 1.6; }
+.lx-slide-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 2rem; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; border-bottom: 1px solid #111; padding-bottom: 4px; color: #111; text-decoration: none; transition: opacity .2s; }
+.lx-slide-cta:hover { opacity: 0.45; }
+
+/* SLIDER CONTROLS */
+.lx-dots { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
+.lx-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; cursor: pointer; transition: background 0.3s; border: none; padding: 0; }
+.lx-dot.active { background: #111; }
+.lx-arrows { position: absolute; top: 50%; transform: translateY(-50%); width: 100%; display: flex; justify-content: space-between; padding: 0 2rem; pointer-events: none; }
+.lx-arrow { width: 44px; height: 44px; border: 1px solid rgba(0,0,0,0.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: all; background: rgba(255,255,255,0.9); font-size: 16px; color: #444; line-height: 1; transition: background .2s; }
+.lx-arrow:hover { background: #fff; }
+
+/* DESCRIPTION */
+.lx-desc { padding: 6rem 2rem; text-align: center; border-bottom: 1px solid #efefef; }
+.lx-desc-inner { max-width: 620px; margin: 0 auto; }
+.lx-desc-label { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: #ccc; margin-bottom: 1.5rem; }
+.lx-desc-title { font-size: 36px; font-weight: 400; line-height: 1.3; letter-spacing: -0.02em; color: #111; margin-bottom: 1.25rem; }
+.lx-desc-text { font-size: 17px; color: #777; line-height: 1.9; margin-bottom: 2.5rem; }
+.lx-desc-cta { display: inline-flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; border-bottom: 1px solid #111; padding-bottom: 4px; color: #111; text-decoration: none; transition: opacity .2s; }
+.lx-desc-cta:hover { opacity: 0.5; }
+
+/* 3 STEPS */
+.lx-steps { display: grid; grid-template-columns: repeat(3, 1fr); }
+.lx-step { padding: 3.5rem 3rem; border-right: 1px solid #efefef; }
+.lx-step:last-child { border-right: none; }
+.lx-step-num { font-size: 12px; letter-spacing: 0.15em; color: #ddd; margin-bottom: 2rem; }
+.lx-step-icon { width: 40px; height: 40px; border: 1px solid #e8e8e8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; }
+.lx-step-icon svg { width: 16px; height: 16px; stroke: #999; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.lx-step-title { font-size: 17px; font-weight: 500; color: #111; margin-bottom: 0.75rem; line-height: 1.3; }
+.lx-step-desc { font-size: 15px; color: #888; line-height: 1.8; }
+
+@media (max-width: 720px) {
+  .lx-slide-title { font-size: 36px; }
+  .lx-slider { height: 420px; }
+  .lx-desc-title { font-size: 28px; }
+  .lx-steps { grid-template-columns: 1fr; }
+  .lx-step { border-right: none; border-bottom: 1px solid #efefef; }
+  .lx-step:last-child { border-bottom: none; }
+}
+</style>
+
+<div class="lx">
+{% include home-content.html %}
+</div><!-- .lx -->
+
+<script>
+var lxCur = 0;
+var lxSlides = document.querySelectorAll('.lx-slide');
+var lxDots = document.querySelectorAll('.lx-dot');
+function lxGo(n) {
+  lxSlides[lxCur].classList.remove('active');
+  lxDots[lxCur].classList.remove('active');
+  lxCur = (n + lxSlides.length) % lxSlides.length;
+  lxSlides[lxCur].classList.add('active');
+  lxDots[lxCur].classList.add('active');
+}
+function lxSlide(d) { lxGo(lxCur + d); }
+setInterval(function(){ lxSlide(1); }, 5000);
+</script>
+
+<script>
+const TRACKER_ENDPOINT = "https://script.google.com/macros/s/AKfycbzS_BXbhdL5lonAPSMcLF0d0zxBgf4L38mxBrhGMSsKrDKp-vlYMCxuWmcUURnu6Vxn/exec";
+function trackClick(sito, bottone, prodotto, prezzo) {
+  try {
+    const device = /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
+    const params = new URLSearchParams({ sito, bottone, prodotto: prodotto||'-', prezzo: prezzo||'-', browser: navigator.userAgent.substring(0, 80), device });
+    new Image().src = TRACKER_ENDPOINT + "?" + params.toString();
+  } catch(e) {}
+}
+</script>

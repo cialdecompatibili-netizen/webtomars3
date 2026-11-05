@@ -1,0 +1,190 @@
+/* GUIDA-SVILUPPO: stile del menu (masthead.html + assets/js/menu.js). Classi nv__* e attributi data-nv-* sono usati da tutti e tre: non rinominare. Colori SOLO da variabili --t-nav-*, --t-accent (tema.json). Il masthead e' in cache e identico su ogni pagina: lo stato per-pagina (voce attiva, lingua) lo calcola menu.js. */
+/* =====================================================================
+   MENU DEL SITO (assets/css/menu.css)  -  pari pari a al-folio
+   Si abbina a _includes/masthead.html e assets/js/menu.js.
+   I colori NON sono scritti qui: arrivano da _data/tema.json tramite le variabili
+   --t-nav-bg, --t-nav-text, --t-nav-hover, --t-accent, --t-font, --t-radius
+   (definite in _includes/head/custom.html). Cambia il tema, cambia il menu.
+
+   PUNTO CRITICO - IL BREAKPOINT: sotto 900px compare l'hamburger. Il numero sta in UN
+   solo punto: la riga "@media (max-width: 899.98px)" piu' in basso. Per far scattare
+   l'hamburger prima (es. con tante voci) alza il numero (es. 900px -> 899.98px).
+   Le classi iniziano con "nv" per non scontrarsi con quelle del tema (greedy-nav, masthead).
+   ===================================================================== */
+
+.nv-header { position: sticky; top: 0; z-index: 1000; background: var(--t-nav-bg, #fff); border-bottom: 1px solid #e8e8e8; font-family: var(--t-font, inherit); }
+/* LARGHEZZA: viene da --nz-wrap-max / --nz-wrap-pad definite in main.scss (UNICA fonte). NON mettere qui numeri fissi. */
+.nv__inner { max-width: var(--nz-wrap-max, 1360px); margin: 0 auto; padding: .35rem var(--nz-wrap-pad, 1rem); display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; }
+.nv__brand { flex: none; white-space: nowrap; font-weight: 700; font-size: 1.15rem; color: var(--t-nav-text, #111); text-decoration: none; padding: .5rem 0; }
+.nv__brand:hover { color: var(--t-nav-hover, #555); }
+
+/* ---- DESKTOP: pannello e lista in riga ---- */
+.nv__toggle { display: none; }
+.nv__panel { display: flex; flex: 0 0 auto; margin-left: auto; justify-content: flex-end; }
+.nv__list { display: flex; align-items: center; gap: .15rem; list-style: none; margin: 0; padding: 0; }
+.nv__item { position: relative; flex: none; margin: 0; padding: 0; }
+.nv__link { display: block; white-space: nowrap; padding: .5rem clamp(.4rem, .8vw, .55rem); margin: 0; background: none; border: 0; border-radius: 0; font: inherit; font-size: .95rem; color: var(--t-nav-text, #111); text-decoration: none; cursor: pointer; line-height: 1.4; }
+.nv__link:hover, .nv__link:focus-visible { color: var(--t-nav-hover, #555); text-decoration: none; }
+.nv__item.active > .nv__link { font-weight: 700; color: var(--t-accent, #0e7490); }
+
+/* freccetta accanto al padre della tendina (solo CSS, non va scritta nell'HTML) */
+.nv__link--dd::after { content: ""; display: inline-block; margin-left: .4em; vertical-align: .18em; border: .3em solid transparent; border-top-color: currentColor; border-bottom: 0; }
+
+/* tendina: nascosta finche' l'<li> non riceve la classe .show (la mette menu.js) */
+.nv__dd { display: none; position: absolute; top: 100%; left: 0; min-width: 14rem; padding: .35rem 0; background: var(--t-nav-bg, #fff); border: 1px solid #e8e8e8; border-radius: var(--t-radius, 8px); box-shadow: 0 8px 24px rgba(0,0,0,.08); z-index: 1001; }
+.nv__item.show > .nv__dd { display: block; }
+/* le ultime voci aprono la tendina verso sinistra, cosi' non esce dallo schermo */
+.nv__item:nth-last-child(-n+3) > .nv__dd { left: auto; right: 0; }
+.nv__dd-item { display: block; padding: .45rem 1rem; white-space: nowrap; font-size: .92rem; color: var(--t-nav-text, #111); text-decoration: none; }
+.nv__dd-item:hover { color: var(--t-nav-hover, #555); background: rgba(0,0,0,.04); text-decoration: none; }
+.nv__dd-item.active { background: var(--t-accent, #0e7490); color: #fff; }
+.nv__divider { height: 1px; margin: .35rem 0; background: #e8e8e8; }
+/* sicurezza: una tendina non e' mai piu' alta dello schermo, se serve scorre */
+.nv__dd { max-height: calc(100vh - 5rem); overflow-y: auto; }
+/* TENDINA LARGA (classe messa da masthead.html quando ha piu' di 8 voci): 2 colonne, ancorata a destra
+   della barra (non sotto il padre), cosi' sta sempre dentro lo schermo e si legge tutta senza scorrere */
+.nv__inner { position: relative; }
+.nv__item--wide { position: static; }
+.nv__dd--wide { left: auto; right: 1rem; width: min(44rem, calc(100vw - 2rem)); columns: 2; column-gap: 0; }
+.nv__dd--wide .nv__dd-item { white-space: normal; break-inside: avoid; }
+.nv__dd--wide .nv__divider { display: none; }
+/* prima voce della tendina (es. "Tutti i servizi"): centrata, su tutta la larghezza */
+.nv__dd > .nv__dd-item:first-child { font-weight: 600; }
+
+/* strumenti (lente + carrello) */
+.nv__tools { display: flex; align-items: center; gap: .35rem; padding-left: .35rem; }
+.nv__tools .search__toggle { background: none; border: 0; padding: .5rem; margin: 0; height: auto; cursor: pointer; color: var(--t-nav-text, #111); font-size: 1rem; }
+.nv__tools .search__toggle:hover { color: var(--t-accent, #0e7490); }
+
+/* ---- hamburger a 3 lineette (diventa una X quando e' aperto) ---- */
+.nv__toggle { padding: .6rem .5rem; margin-left: auto; background: none; border: 0; cursor: pointer; }
+.nv__bar { display: block; width: 22px; height: 2px; margin-bottom: 4px; background: var(--t-nav-text, #111); border-radius: 1px; transition: all .2s; }
+.nv__bar--top { transform: rotate(45deg); transform-origin: 10% 10%; }
+.nv__bar--mid { opacity: 0; }
+.nv__bar--bot { transform: rotate(-45deg); transform-origin: 10% 90%; margin-bottom: 0; }
+.nv__toggle.collapsed .nv__bar--top, .nv__toggle.collapsed .nv__bar--bot { transform: rotate(0); }
+.nv__toggle.collapsed .nv__bar--mid { opacity: 1; }
+
+/* ---- MOBILE / FINESTRA STRETTA: tutto dentro il pannello a scomparsa ---- */
+@media (max-width: 899.98px) {
+  .nv__inner { flex-wrap: wrap; }
+  .nv__toggle { display: block; }
+  .nv__panel { display: none; flex-basis: 100%; justify-content: flex-start; max-height: calc(100vh - 4rem); overflow-y: auto; }
+  .nv__panel.show { display: block; }
+  .nv__list { flex-direction: column; align-items: stretch; gap: 0; width: 100%; padding-bottom: .5rem; }
+  .nv__link { width: 100%; text-align: left; padding: .7rem .25rem; }
+  .nv__link--dd { display: flex; justify-content: space-between; align-items: center; }
+  /* la tendina non e' piu' sospesa: si apre in colonna sotto il padre */
+  .nv__dd { position: static; min-width: 0; box-shadow: none; border: 0; border-left: 2px solid #e8e8e8; border-radius: 0; margin: 0 0 .35rem .5rem; padding: 0; }
+  .nv__item:nth-last-child(-n+3) > .nv__dd { left: auto; right: auto; }
+  .nv__dd-item { white-space: normal; padding: .55rem .9rem; }
+  .nv__dd--wide { width: auto; columns: 2; column-gap: 0; right: auto; max-height: none; }
+  .nv__item--wide { position: relative; }
+  .nv__tools { padding: .25rem 0; }
+}
+@media (prefers-reduced-motion: reduce) { .nv__bar { transition: none; } }
+
+/* =====================================================================
+   COLORI MENU - palette acqua: teal + azzurro ghiaccio
+   PERCHE': le voci-link visitate diventavano celestine (a:visited del tema Minimal Mistakes ha
+   specificita' 0,1,1 e batteva .nv__link 0,1,0), mentre i <button> restavano neri.
+   QUI: "a.nv__link" + :visited/:focus hanno specificita' piu' alta, quindi link e bottoni
+   sono SEMPRE dello stesso colore (--t-nav-text). Hover/attivo = verde scuro (--t-accent) con
+   barretta azzurro ghiaccio #7fd8e6 sotto (il chiaro su bianco non si leggerebbe come testo).
+   I colori base si cambiano in _data/tema.json, l'acido e' scritto solo qui.
+   ===================================================================== */
+a.nv__brand, a.nv__brand:visited, a.nv__link, a.nv__link:visited, a.nv__link:focus, a.nv__link:active { color: var(--t-nav-text, #15191d); }
+a.nv__brand:hover, a.nv__link:hover, a.nv__link:focus-visible, .nv__link:hover, .nv__link:focus-visible { color: var(--t-accent, #0e7490); }
+.nv__link { box-shadow: inset 0 -3px 0 transparent; transition: box-shadow .15s, color .15s; }
+.nv__link:hover, .nv__link:focus-visible, .nv__item.show > .nv__link { box-shadow: inset 0 -3px 0 #7fd8e6; }
+.nv__item.active > a.nv__link, .nv__item.active > a.nv__link:visited, .nv__item.active > .nv__link { color: var(--t-accent, #0e7490); font-weight: 700; box-shadow: inset 0 -3px 0 #7fd8e6; }
+a.nv__dd-item, a.nv__dd-item:visited, a.nv__dd-item:focus { color: var(--t-nav-text, #15191d); }
+a.nv__dd-item:hover, a.nv__dd-item:focus-visible { color: var(--t-accent, #0e7490); background: #eef8fa; box-shadow: none; }
+a.nv__dd-item.active, a.nv__dd-item.active:visited, a.nv__dd-item.active:hover { background: #7fd8e6; color: #15191d; box-shadow: none; }
+@media (max-width: 899.98px) { .nv__link, .nv__item.active > .nv__link { box-shadow: none; } .nv__item.active > .nv__link { border-left: 0; padding-left: .6rem; } }
+/* logo EX accanto al titolo */
+.nv__brand{display:inline-flex;align-items:center;gap:.6rem}
+.nv__logo{width:34px;height:34px;border-radius:8px;display:block;flex:none}
+
+/* Brand luxury */
+.nv__brand{font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-weight:600;font-size:1.15rem;letter-spacing:.12em;text-transform:uppercase}
+.nv__logo{border-radius:7px;box-shadow:0 0 0 1px rgba(14,116,144,.35)}
+/* Selettore lingua */
+.lang-switch{display:flex;gap:1rem;justify-content:center;padding:1rem 0;font-size:.85rem;letter-spacing:.14em;text-transform:uppercase}
+.lang-switch a{text-decoration:none;opacity:.7}.lang-switch a:hover{opacity:1}.lang-switch__cur{font-weight:700}
+
+/* ---- SELETTORE LINGUA (bandiera nel menu) ---- */
+.nv__flag { width: 22px; height: 16px; border-radius: 3px; object-fit: cover; vertical-align: -3px; box-shadow: 0 0 0 1px rgba(128,128,128,.35); flex: none; }
+.nv__lang-btn { display: inline-flex; align-items: center; gap: .45rem; }
+.nv__lang-code { font-size: .8rem; letter-spacing: .06em; font-weight: 600; }
+.nv__dd--lang { min-width: 11rem; }
+.nv__dd--lang > .nv__dd-item:first-child { text-align: left; font-weight: inherit; }
+.nv__lang-item { display: flex; align-items: center; gap: .65rem; }
+.nv__lang-item.active { background: transparent; color: var(--t-nav-text, #111); }
+.nv__lang-item.is-current { font-weight: 700; box-shadow: inset 3px 0 0 var(--t-accent, #0e7490); }
+.nv__lang-item--home { opacity: .6; }
+.nv__lang-item--home:hover { opacity: 1; }
+@media (max-width: 899.98px) { .nv__lang-btn { width: 100%; } }
+/* ---- MENU SU UNA RIGA, STABILE E SCALABILE (22/10/2026) ----
+   Desktop: mai a capo (nowrap). Se le voci (anche dopo averne aggiunte o aggiunta una lingua) non
+   ci stanno piu' in una riga, menu.js mette la classe .nv--compact su .nv-header e il menu passa
+   all'hamburger, identico a quello mobile. Nessun numero di pixel da ritoccare quando cambiano le voci. */
+.nv--compact .nv__inner { flex-wrap: wrap; }
+.nv--compact .nv__toggle { display: block; }
+.nv--compact .nv__panel { display: none; flex-basis: 100%; justify-content: flex-start; max-height: calc(100vh - 4rem); overflow-y: auto; }
+.nv--compact .nv__panel.show { display: block; }
+.nv--compact .nv__list { flex-direction: column; align-items: stretch; gap: 0; width: 100%; padding-bottom: .5rem; }
+.nv--compact .nv__link { width: 100%; text-align: left; padding: .7rem .25rem; box-shadow: none; }
+.nv--compact .nv__item.active > .nv__link { box-shadow: none; }
+.nv--compact .nv__link--dd { display: flex; justify-content: space-between; align-items: center; }
+.nv--compact .nv__dd { position: static; min-width: 0; box-shadow: none; border: 0; border-left: 2px solid #e8e8e8; border-radius: 0; margin: 0 0 .35rem .5rem; padding: 0; }
+.nv--compact .nv__item:nth-last-child(-n+3) > .nv__dd { left: auto; right: auto; }
+.nv--compact .nv__dd-item { white-space: normal; padding: .55rem .9rem; }
+.nv--compact .nv__dd--wide { width: auto; columns: 2; column-gap: 0; right: auto; max-height: none; }
+.nv--compact .nv__item--wide { position: relative; }
+.nv--compact .nv__tools { padding: .25rem 0; }
+.nv--compact .nv__lang-btn { width: 100%; }
+/* ---- ICONE (lente, carrello, hamburger) in stile sottile, 22/10/2026 ---- */
+.nv__ico { display: block; }
+.nv__tools .search__toggle { padding: .5rem .55rem; line-height: 0; }
+.nv__cart { display: inline-flex; align-items: center; justify-content: center; padding: .5rem .55rem; color: var(--t-nav-text, #111); line-height: 0; text-decoration: none; transition: color .2s, transform .2s; }
+.nv__cart:hover, .nv__cart:focus-visible { color: var(--t-accent, #0e7490); transform: translateY(-1px); }
+.nv__bar { height: 1.5px; margin-bottom: 5px; }
+.nv__bar--mid { width: 14px; margin-left: auto; }
+.nv__toggle.collapsed .nv__bar--mid { opacity: 1; }
+.nv__toggle:hover .nv__bar--mid { width: 22px; }
+/* ORDINE MOBILE (barra): logo | carrello (a sinistra) ... hamburger (all'estrema destra).
+   Il carrello prende margin-left:auto e spinge se' e le 3 lineette a destra; l'hamburger resta attaccato al bordo destro (margin-left:0).
+   Per invertire di nuovo: scambiare gli order 1/2 e i due margin-left tra .nv__cart e .nv__toggle (nei DUE blocchi: media query e .nv--compact). */
+@media (max-width: 899.98px) {
+  .nv__brand { order: 0; }
+  .nv__cart { order: 1; margin-left: auto; }
+  .nv__toggle { order: 2; margin-left: 0; }
+  .nv__panel { order: 3; }
+}
+.nv--compact .nv__cart { order: 1; margin-left: auto; }
+.nv--compact .nv__toggle { order: 2; margin-left: 0; }
+.nv--compact .nv__panel { order: 3; }
+/* Pulsante lingua: solo bandierina, senza codice IT/EN */
+.nv__lang-btn .nv__lang-code { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.nv__lang-btn .nv__flag { margin: 0; }
+
+/* =====================================================================
+   MENU ADATTIVO (23/10/2026)
+   Finestra larga: tutto a grandezza piena. Stringendo la finestra il menu SI RIMPICCIOLISCE
+   in proporzione (testo, spazi, logo, icone), restando su una riga. Solo sotto 900px
+   (tipo smartphone) diventa hamburger. Tutto in "em": la grandezza la decide UNA riga sola,
+   il font-size di .nv__inner (min 10.5px, 1.1% della larghezza, max 16px).
+   ===================================================================== */
+@media (min-width: 900px) {
+  .nv__inner { font-size: clamp(10.5px, 1.1vw, 16px); padding: .35em var(--nz-wrap-pad, 1rem); } /* padding laterale in rem via variabile: deve restare uguale al contenuto della pagina */
+  .nv__brand { font-size: 1.15em; gap: .5em; padding: .5em 0; }
+  .nv__logo { width: 2.1em; height: 2.1em; }
+  .nv__list { gap: .15em; }
+  .nv__link { font-size: .95em; padding: .5em .55em; }
+  .nv__lang-btn { gap: .45em; }
+  .nv__flag { width: 1.4em; height: 1em; }
+  .nv__ico { width: 1.35em; height: 1.35em; }
+  .nv__tools { padding-left: .35em; gap: .35em; }
+  .nv__tools .search__toggle, .nv__cart { font-size: 1em; padding: .5em .55em; }
+}

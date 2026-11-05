@@ -1,0 +1,8 @@
+{%- comment -%}
+GUIDA-SVILUPPO: blocco "Servizi" della home, richiamato da render-blocks.html per il blocco con id "features" quando esiste almeno un file in _servizi. Legge la collection servizi (ordine, campo in_home).
+{%- endcomment -%}
+{% assign svc = site.servizi | where_exp: "s", "s.in_home != false" | sort: "ordine" %}
+<section class="ex-sec" id="servizi" aria-labelledby="features-title"><div class="ex-wrap"><div class="ex-svc-head"><h2 class="ex-h2" id="features-title">Servizi</h2><p>Interventi in quota con un solo metodo: accesso su corda, nessun ponteggio.</p></div><div class="ex-svcs">
+{% for s in svc limit: 12 %}<a class="ex-svc" href="{{ s.url | relative_url }}"><span class="ex-svc-t">{{ s.title }}</span><span class="ex-svc-d">{{ s.description | default: s.excerpt | strip_html | strip | truncatewords: 14 }}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></a>
+{% endfor %}
+</div></div></section>

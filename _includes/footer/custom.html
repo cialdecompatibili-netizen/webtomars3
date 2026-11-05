@@ -1,0 +1,102 @@
+{%- comment -%}
+GUIDA-SVILUPPO: PIEDE DEL SITO (incluso dal tema in fondo a ogni pagina). Contiene, in ordine: selettore lingua di pagina (solo se esiste una traduzione con lo stesso `ref`), pulsante WhatsApp (solo se site.whatsapp e' pieno), testo del piede (site.footer_text oppure copyright con site-name.html) e lo script delle ETA' (data-eta / data-anni-da).
+NON scrivere eta' a mano: usa <span data-eta="AAAA-MM-GG">N</span>. Nessun nome o numero fisso qui dentro: tutto da _config.yml.
+{%- endcomment -%}
+{%- include site-name.html -%}
+{% if site.whatsapp != "" or site.whatsapp_demo %}<a id="wa-btn" href="{% if site.whatsapp != '' %}https://wa.me/{{ site.whatsapp }}?text={{ 'Buongiorno, vorrei avere informazioni.' | url_encode }}{% else %}#{% endif %}"{% if site.whatsapp == '' %} onclick="return false;"{% endif %} target="_blank" rel="noopener" aria-label="Scrivici su WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></a>{% endif %}
+<div class="page__footer-custom">{% if site.footer_text %}{{ site.footer_text }}{% else %}&copy; {{ site.time | date: '%Y' }} <a href="{{ '/' | relative_url }}">{{ site_name }}</a> - Design, Development &amp; Digital Marketing by <a class="wtm-credit" href="https://webtomars.it/" target="_blank" rel="noopener">webtomars.it<svg class="wtm-eye" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M1.5 12C4 7.2 8 4.8 12 4.8s8 2.4 10.5 7.2C20 16.8 16 19.2 12 19.2S4 16.8 1.5 12Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="12" r="4.2" fill="currentColor"/><circle cx="13.3" cy="10.7" r="1.3" fill="#fff"/></svg></a>{% endif %}</div>
+<style>
+.wtm-credit{color:#8a6a00;text-shadow:0 0 8px #ffc61a,0 0 18px #ffae00;white-space:nowrap}
+.wtm-credit:hover{text-shadow:0 0 10px #ffc61a,0 0 26px #ffae00}
+.wtm-eye{display:inline-block;vertical-align:-3px;margin-left:.4em;color:#b8860b;transform-origin:center;animation:wtm-pulse 2.6s ease-in-out infinite,wtm-blink 7s ease-in-out infinite}
+@keyframes wtm-pulse{0%,100%{filter:drop-shadow(0 0 2px #ffc61a);opacity:.85}50%{filter:drop-shadow(0 0 9px #ffc61a);opacity:1}}
+@keyframes wtm-blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@media (prefers-reduced-motion:reduce){.wtm-eye{animation:none}}
+</style>
+
+<div id="cp-lightbox" onclick="closeLightbox()" style="display:none;position:fixed;z-index:9999;inset:0;background:rgba(0,0,0,.9);cursor:zoom-out;align-items:center;justify-content:center;flex-direction:column;">
+  <img id="cp-lightbox-img" src="" alt="" style="max-width:92vw;max-height:88vh;object-fit:contain;border-radius:8px;">
+  <span id="cp-lightbox-caption" style="color:#eee;margin-top:.8em;font-size:14px;"></span>
+  <span onclick="closeLightbox()" style="position:absolute;top:18px;right:28px;color:#fff;font-size:32px;cursor:pointer;line-height:1;">&times;</span>
+</div>
+<script>
+function openLightbox(src, caption) {
+  var lb = document.getElementById('cp-lightbox');
+  document.getElementById('cp-lightbox-img').src = src;
+  document.getElementById('cp-lightbox-caption').textContent = caption || '';
+  lb.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('cp-lightbox').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+document.addEventListener('click', function(e) {
+  var trig = e.target.closest('.lightbox-trigger');
+  if (trig) {
+    e.preventDefault();
+    var img = trig.querySelector('img');
+    openLightbox(trig.getAttribute('href') || img.src, trig.getAttribute('data-lightbox-caption') || img.alt);
+  }
+});
+</script>
+<script>
+/* cp-img-zoom: ogni immagine di blog/shop (contenuto, copertina, foto prodotto) si apre a schermo intero al click. Usa openLightbox sopra. */
+(function () {
+  var st = document.createElement('style');
+  st.textContent = '.cp-zoomable{cursor:zoom-in}';
+  document.head.appendChild(st);
+  function ok(img) {
+    if (!img || img.closest('#cp-lightbox,.exlb,nav,header,footer,.masthead,.sp-thumbs,.nz-card,.archive__item,.cp-nozoom')) return false;
+    if (img.hasAttribute('data-nozoom') || img.classList.contains('emoji')) return false;
+    var a = img.closest('a');
+    if (a && !/\.(jpe?g|png|webp|gif|avif|svg)(\?.*)?$/i.test(a.getAttribute('href') || '')) return false;
+    if (img.closest('button,[onclick]') && !img.classList.contains('sp-main-img')) return false;
+    var w = img.naturalWidth || img.width;
+    return w >= 120 || !img.complete;
+  }
+  function mark() {
+    var imgs = document.querySelectorAll('main img, #main img, .page__content img, .page__hero img, article img');
+    for (var i = 0; i < imgs.length; i++) if (ok(imgs[i])) imgs[i].classList.add('cp-zoomable');
+  }
+  document.addEventListener('click', function (e) {
+    var img = e.target.closest && e.target.closest('img.cp-zoomable');
+    if (!img || img.classList.contains('sp-main-img')) return;
+    var a = img.closest('a');
+    e.preventDefault();
+    openLightbox((a && a.getAttribute('href')) || img.currentSrc || img.src, img.alt || '');
+  }, true);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mark); else mark();
+  window.addEventListener('load', mark);
+})();
+</script>
+{%- comment -%}
+=====================================================================================
+ REGOLA ETA / ANNI AUTOMATICI  (mai scrivere un'eta' o "da N anni" a mano nei testi)
+ Le eta' si aggiornano da sole nel browser, ogni giorno, senza toccare gli articoli.
+   - Eta' di una persona:   <span data-eta="1970-05-22">56</span> anni
+        data-eta  = data di nascita AAAA-MM-GG (il numero dentro lo span e' solo il valore
+        di riserva per chi non ha JavaScript: lo script lo sostituisce con quello giusto).
+   - Anni trascorsi da una data o da un anno (fondazione, debutto, ecc.):
+        <span data-anni-da="1975">51</span> anni di storia      (anche AAAA-MM-GG)
+ Se la data di nascita non e' nota: scrivere "non nota", NON un numero.
+ Vale per tutte le date: se un testo contiene un'eta' o un "N anni fa/di", va scritta cosi'.
+=====================================================================================
+{%- endcomment -%}
+<script>
+(function () {
+  var oggi = new Date();
+  function anni(s) {
+    var p = String(s).split('-'), y = +p[0], m = (+p[1] || 1) - 1, d = +p[2] || 1;
+    if (!y) return null;
+    var a = oggi.getFullYear() - y;
+    if (oggi.getMonth() < m || (oggi.getMonth() === m && oggi.getDate() < d)) a--;
+    return a;
+  }
+  document.querySelectorAll('[data-eta],[data-anni-da]').forEach(function (el) {
+    var v = anni(el.getAttribute('data-eta') || el.getAttribute('data-anni-da'));
+    if (v !== null && v >= 0) el.textContent = v;
+  });
+})();
+</script>

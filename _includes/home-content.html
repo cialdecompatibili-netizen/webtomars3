@@ -1,0 +1,11 @@
+{%- comment -%}
+GUIDA-SVILUPPO: CORPO DELLA HOME, incluso da index.html e en/index.html. Stampa i blocchi di _data/blocks_home.json tramite render-blocks.html (versione inglese: _data/i18n/en/blocks_home.json).
+Per cambiare la home NON toccare questo file: usa admin > Home oppure modifica solo il campo html dei blocchi. home.css e' un CSS purgato con le sole classi usate: se aggiungi classi Tailwind nuove non funzionano.
+{%- endcomment -%}
+<!-- Tailwind (purgato, solo classi usate) -->
+<link rel="stylesheet" href="{{ '/assets/css/home.css' | relative_url }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/2.8.0/alpine.js" defer></script>
+
+<main id="main-content">
+{% include render-blocks.html data="blocks_home" %}
+</main>

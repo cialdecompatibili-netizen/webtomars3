@@ -1,0 +1,38 @@
+{%- comment -%} Galleria foto reali (_data/foto.yml). Parametri: temi="tema1,tema2" | tutte=true | max=6 | titolo | sottotitolo | gruppo {%- endcomment -%}
+{%- assign max = include.max | default: 6 -%}
+{%- assign temi = include.temi | default: "team" | split: "," -%}
+{%- assign n = 0 -%}
+{%- unless include.tutte -%}
+{%- for f in site.data.foto -%}{%- for t in temi -%}{%- if f.t contains t -%}{%- assign n = n | plus: 1 -%}{%- break -%}{%- endif -%}{%- endfor -%}{%- endfor -%}
+{%- if n < 2 -%}{%- assign temi = "team" | split: "," -%}{%- endif -%}
+{%- endunless -%}
+{%- assign gr = include.gruppo | default: "gal" -%}
+{%- assign shown = 0 -%}
+<section class="exg"{% if include.tutte %} id="galleria"{% endif %} aria-label="Galleria foto">
+<h2 class="exg-h">{{ include.titolo | default: "Galleria foto" }}</h2>
+<p class="exg-s">{{ include.sottotitolo | default: "Clicca una foto per ingrandirla." }}</p>
+{%- if include.tutte -%}
+{%- comment -%} FILTRI GENERATI DAI DATI: un bottone per ogni tema (campo t di _data/foto.yml) tranne "team" (tema di riserva). Nessun elenco fisso da cambiare nei cloni. {%- endcomment -%}
+{%- assign alltemi = "" | split: "" -%}
+{%- for f in site.data.foto -%}{%- if f.t -%}{%- assign alltemi = alltemi | concat: f.t -%}{%- endif -%}{%- endfor -%}
+{%- assign alltemi = alltemi | uniq | where_exp: "x", "x != 'team'" -%}
+{%- if alltemi.size > 0 %}
+<div class="exg-f" role="group" aria-label="Filtra le foto">
+<button type="button" class="on" data-f="tutte">Tutti</button>
+{%- for tm in alltemi %}
+<button type="button" data-f="{{ tm }}">{{ tm | replace: "-", " " | capitalize }}</button>
+{%- endfor %}
+</div>
+{%- endif -%}
+{%- endif -%}
+<div class="exg-g">
+{%- for f in site.data.foto -%}
+{%- assign ok = false -%}
+{%- if include.tutte -%}{%- assign ok = true -%}{%- else -%}{%- for t in temi -%}{%- if f.t contains t -%}{%- assign ok = true -%}{%- break -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+{%- if ok and shown < max or ok and include.tutte -%}
+{%- assign shown = shown | plus: 1 -%}
+<figure class="exg-i" data-t="{{ f.t | join: ' ' }}"><a href="{{ '/assets/foto/' | append: f.f | append: '.jpg' | relative_url }}" data-lb="{{ gr }}" data-cap="{{ f.cap | escape }}" aria-label="Ingrandisci: {{ f.cap | escape }}"><img src="{{ '/assets/foto/t/' | append: f.f | append: '.jpg' | relative_url }}" alt="{{ f.cap | escape }}" width="480" height="360" loading="lazy" decoding="async"></a><figcaption>{{ f.cap }}</figcaption></figure>
+{%- endif -%}
+{%- endfor -%}
+</div>
+</section>

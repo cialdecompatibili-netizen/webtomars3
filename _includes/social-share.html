@@ -1,0 +1,22 @@
+{%- comment -%}
+GUIDA-SVILUPPO: PULSANTI "Condividi su" (WhatsApp, Telegram, Facebook, LinkedIn, X, Pinterest, email, copia link). Incluso da _layouts/single.html SOLO se la pagina ha "share: true" nel front matter.
+Legge page.url e page.title; il nome sito viene da site-name.html. Stili e piccolo JS (copia link) sono in fondo a questo file. Il titolo "Condividi su" va tradotto in _data/ui-text.yml / head/custom.html.
+{%- endcomment -%}
+{%- include site-name.html -%}
+{%- assign share_url = page.url | absolute_url | url_encode -%}
+{%- assign share_title = page.title | default: site_name | strip_html | url_encode -%}
+<section class="page__share">
+  <h4 class="page__share-title">Condividi su</h4>
+  <a href="https://wa.me/?text={{ share_title }}%20{{ share_url }}" class="btn btn--share btn--whatsapp" target="_blank" rel="noopener" title="Condividi su WhatsApp"><i class="fab fa-fw fa-whatsapp" aria-hidden="true"></i><span> WhatsApp</span></a>
+  <a href="https://t.me/share/url?url={{ share_url }}&text={{ share_title }}" class="btn btn--share btn--telegram" target="_blank" rel="noopener" title="Condividi su Telegram"><i class="fab fa-fw fa-telegram" aria-hidden="true"></i><span> Telegram</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u={{ share_url }}" class="btn btn--facebook" onclick="window.open(this.href,'window','left=20,top=20,width=500,height=500,toolbar=1,resizable=0');return false;" title="Condividi su Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ share_url }}" class="btn btn--linkedin" onclick="window.open(this.href,'window','left=20,top=20,width=500,height=500,toolbar=1,resizable=0');return false;" title="Condividi su LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://x.com/intent/tweet?text={{ share_title }}%20{{ share_url }}" class="btn btn--x" onclick="window.open(this.href,'window','left=20,top=20,width=500,height=500,toolbar=1,resizable=0');return false;" aria-label="Condividi su X" title="Condividi su X"><i class="fab fa-fw fa-x-twitter" aria-hidden="true"></i><span> X</span></a>
+  <a href="https://pinterest.com/pin/create/button/?url={{ share_url }}&description={{ share_title }}" class="btn btn--share btn--pinterest" target="_blank" rel="noopener" title="Condividi su Pinterest"><i class="fab fa-fw fa-pinterest" aria-hidden="true"></i><span> Pinterest</span></a>
+  <a href="mailto:?subject={{ share_title }}&body={{ share_url }}" class="btn btn--share btn--email" title="Condividi via email"><i class="fas fa-fw fa-envelope" aria-hidden="true"></i><span> Email</span></a>
+  <a href="{{ page.url | absolute_url }}" class="btn btn--share btn--copylink" data-copy-link title="Copia link"><i class="fas fa-fw fa-link" aria-hidden="true"></i><span> Copia link</span></a>
+</section>
+<style>.page__share .btn{color:#fff!important}.page__share .btn:hover{filter:brightness(.88);color:#fff!important}.page__share .btn--whatsapp{background:#25d366!important}.page__share .btn--telegram{background:#26a5e4!important}.page__share .btn--facebook{background:#1877f2!important}.page__share .btn--linkedin{background:#0a66c2!important}.page__share .btn--x{background:#000!important}.page__share .btn--pinterest{background:#e60023!important}.page__share .btn--email{background:#666!important}.page__share .btn--copylink{background:#444!important}</style>
+<script>
+document.querySelectorAll('[data-copy-link]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();var u=b.href,s=b.querySelector('span'),t=s.textContent;function ok(){s.textContent=' Copiato!';setTimeout(function(){s.textContent=t},1800)}if(navigator.clipboard){navigator.clipboard.writeText(u).then(ok)}else{var i=document.createElement('input');i.value=u;document.body.appendChild(i);i.select();document.execCommand('copy');i.remove();ok()}})});
+</script>

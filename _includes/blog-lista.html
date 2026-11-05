@@ -1,0 +1,49 @@
+{%- comment -%}
+  LISTA ARTICOLI (usata da _pages/blog.md e en/blog.md). Legge `posts_l` (gli articoli della lingua corrente, assegnati dalla pagina che lo include).
+  STILE = card dello shop: bordo sottile, compatte, TUTTA la card e' cliccabile.
+  Come funziona il click: il link del titolo ha un ::after che copre l'intera card (stretched link). Categoria e tag hanno z-index piu' alto,
+  quindi restano cliccabili da soli. NON annidare altri <a> dentro un <a>. Nessun testo fisso: niente da tradurre qui (data e tag arrivano dai post).
+  Impaginazione: data-pg / data-pg-item sono letti da assets/js/paginazione.js (per_page da _config.yml): non rinominare.
+{%- endcomment -%}
+<style>
+.blog-list{list-style:none;margin:1.2rem 0 0;padding:0;display:flex;flex-direction:column;gap:.25rem}
+.blog-item{position:relative;display:flex;gap:1.1rem;align-items:stretch;padding:0;overflow:hidden;background:#fff;border:1px solid var(--gc-line,#e6e8ee);border-radius:14px;transition:border-color .2s,box-shadow .2s,transform .2s}
+.blog-item:hover,.blog-item:focus-within{border-color:var(--gc-acc,#0e7490);box-shadow:0 0 0 1px var(--gc-acc,#0e7490),0 0 18px 2px color-mix(in srgb,var(--gc-acc,#0e7490) 45%,transparent),0 8px 24px rgba(30,40,80,.12);transform:translateY(-1px)}
+/* FOTO: occupa tutta l'altezza della card (a filo, senza margini) e riempie il suo riquadro (cover). Piu' grande = cambia solo flex-basis/min-height. */
+.blog-img{position:relative;flex:0 0 clamp(240px,38%,400px);min-height:200px;overflow:hidden;background:var(--gc-acc-s,#e6f6f9)}
+.blog-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
+.blog-item:hover .blog-img img{transform:scale(1.05)}
+.blog-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:.3rem;padding:.9rem 0}
+.blog-cats{display:flex;gap:6px;flex-wrap:wrap}
+.blog-cat{position:relative;z-index:2;font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gc-acc,#0e7490);background:var(--gc-acc-s,#e6f6f9);border-radius:999px;padding:2px 10px;text-decoration:none!important}
+.blog-cat:hover{background:var(--gc-acc,#0e7490);color:#fff!important}
+.blog-title{font-family:var(--gc-head,inherit);font-size:clamp(1rem,1.8vw,1.2rem);font-weight:700;line-height:1.25;color:var(--gc-ink,#0e1116);text-decoration:none!important}
+.blog-title::after{content:"";position:absolute;inset:0;z-index:1;border-radius:14px}
+.blog-title:focus-visible{outline:none}.blog-title:focus-visible::after{outline:3px solid var(--gc-acc,#0e7490);outline-offset:2px}
+.blog-excerpt{font-size:.92rem;line-height:1.5;color:var(--gc-mut,#56606b);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.blog-meta{font-size:.76rem;color:var(--gc-mut,#56606b);display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.blog-tag{position:relative;z-index:2;color:var(--gc-mut,#56606b);text-decoration:none!important}.blog-tag:hover{color:var(--gc-acc,#0e7490)}
+.blog-go{flex:0 0 auto;align-self:center;font-size:1.3rem;color:var(--gc-acc,#0e7490);padding:0 1rem 0 .2rem;transition:transform .2s}
+.blog-item:hover .blog-go{transform:translateX(3px)}
+@media(max-width:640px){.blog-item{flex-direction:column;gap:0}.blog-img{flex:none;width:100%;min-height:0;aspect-ratio:16/10}.blog-body{padding:.8rem 1rem 1rem}.blog-go{display:none}.blog-excerpt{-webkit-line-clamp:2}}
+</style>
+<ul class="blog-list" data-pg data-pg-item="li.blog-item" data-per="{{ site.per_page | default: 20 }}">
+{%- for post in posts_l %}
+  <li class="blog-item">
+    <div class="blog-img">{% if post.header.teaser %}<img src="{{ post.header.teaser | relative_url }}" alt="" loading="lazy">{% endif %}</div>
+    <div class="blog-body">
+      {%- if post.categories.size > 0 %}
+      <div class="blog-cats">{% for cat in post.categories limit:2 %}<a href="{{ '/categories/#' | prepend: site.baseurl }}{{ cat | slugify }}" class="blog-cat">{{ cat }}</a>{% endfor %}</div>
+      {%- endif %}
+      <a href="{{ post.url | relative_url }}" class="blog-title">{{ post.title }}</a>
+      <div class="blog-excerpt">{{ post.excerpt | strip_html | truncate: 160 }}</div>
+      <div class="blog-meta">
+        <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%d %b %Y" }}</time>
+        {%- if post.author %}<span>&middot;</span><span>{{ post.author }}</span>{% endif %}
+        {%- for tag in post.tags limit:3 %}<a href="{{ '/tags/#' | prepend: site.baseurl }}{{ tag | slugify }}" class="blog-tag">#{{ tag }}</a>{% endfor %}
+      </div>
+    </div>
+    <span class="blog-go" aria-hidden="true">&rarr;</span>
+  </li>
+{%- endfor %}
+</ul>

@@ -1,0 +1,176 @@
+{%- include site-name.html -%}
+{%- assign lg = include.locale | default: site.locale -%}{%- assign i18n = site.data.i18n[lg] -%}{%- if i18n -%}{%- assign shopnav = i18n.shop_nav -%}{%- assign lg_home = '/' | append: lg | append: '/' -%}{%- else -%}{%- assign shopnav = shopnav -%}{%- assign lg_home = '/' -%}{%- endif -%}
+{%- comment -%}
+=====================================================================================
+ MENU DEL SITO  (_includes/masthead.html)
+ Sostituisce il masthead "greedy-nav" del tema Minimal Mistakes (quello che quando
+ la finestra si restringe nasconde le voci dietro un pulsante "...").
+ Questo menu e' ispirato al comportamento di al-folio:
+   - finestra larga  -> voci in fila, con tendine (sottomenu) a comparsa
+   - finestra stretta -> pulsante a 3 lineette (hamburger) che apre TUTTE le voci,
+                         i sottomenu si aprono dentro il pannello. Non si perde mai nulla.
+ File che lavorano insieme (se ne tocchi uno, controlla gli altri):
+   _includes/masthead.html   questo file: costruisce l'HTML leggendo i dati
+   assets/css/menu.css       aspetto (colori dal tema: --t-nav-bg, --t-nav-text, ...)
+   assets/js/menu.js         apre/chiude hamburger e tendine
+   _data/navigation.yml      LE VOCI PRINCIPALI (le modifica anche admin > Menu)
+   _data/sottomenu.yml       I SOTTOMENU (NON li tocca l'admin, quindi non si perdono)
+   _data/shop_nav.yml        tendina "Shop" (categorie + in evidenza), come prima
+
+ ===== COME SI AGGIUNGE / TOGLIE UNA VOCE (leggere prima di modificare) =====
+
+ 1) VOCE SEMPLICE: una riga in _data/navigation.yml
+        - title: "Contatti"
+          url: /contatti/
+    L'ordine del menu e' l'ordine delle righe. url interno SENZA nome repo
+    (/contatti/, non /nome-repo/contatti/): ci pensa relative_url.
+    Link esterno: url completo con "://"  (es. https://google.com).
+    Ancora nella home: /#pricing
+
+ 2) VOCE CON TENDINA: si lascia la riga in navigation.yml e si aggiunge il blocco
+    in _data/sottomenu.yml con la CHIAVE UGUALE al title della voce:
+        navigation.yml:   - title: "Servizi"          url: /servizi/
+        sottomenu.yml:    Servizi:
+                            - title: "Pulizia vetri"
+                              url: /servizi/pulizia-vetri/
+                            - divider: true
+                            - title: "Tutti i servizi"
+                              url: /servizi/
+    REGOLE:
+      - la chiave in sottomenu.yml deve essere IDENTICA al title in navigation.yml
+        (maiuscole e spazi compresi). Se rinomini la voce dall'admin, rinomina anche la chiave.
+      - la voce padre con tendina NON e' cliccabile (apre solo la tendina): il suo "url"
+        non serve ma la riga deve esistere. Se vuoi un link alla pagina padre, mettilo
+        come primo figlio ("Tutti i servizi").
+      - "- divider: true" disegna una riga di separazione. Mai in coda, mai due di fila.
+      - UN SOLO LIVELLO: niente sottomenu dentro i sottomenu.
+      - sottomenu vuoto o chiave non trovata = la voce resta un link normale.
+    La voce "Shop" prende la tendina da _data/shop_nav.yml se ha categorie o "in evidenza"
+    (a meno che in sottomenu.yml ci sia una chiave "Shop": allora vince quella).
+
+ ERRORI TIPICI: chiave diversa dal title (la tendina non compare); url con il nome repo
+ (link doppio); divider in coda; due punti "title:" senza virgolette quando contiene ":".
+
+ PUNTO CRITICO: la classe "greedy-nav" NON va usata qui: e' quella del tema, che
+ con il suo script rimetterebbe in "..." le voci. Qui le classi iniziano con "nv".
+ Il pulsante .search__toggle resta perche' ci si appoggiano la ricerca del tema e
+ l'icona del carrello (inserita da _includes/head/custom.html prima del bottone).
+
+ PUNTO CRITICO 2 - NIENTE page.url QUI DENTRO: il tema Minimal Mistakes carica il masthead con
+ include_cached (plugin jekyll-include-cache): l'HTML viene costruito UNA volta sola, con la
+ prima pagina del sito, e riusato identico su tutte. Quindi {{ page.url }} qui dentro sarebbe
+ SBAGLIATO su quasi tutte le pagine (provato: restituiva un articolo a caso). La voce attiva
+ (grassetto/colore) la calcola assets/js/menu.js confrontando l'indirizzo della pagina con i link.
+ Per lo stesso motivo non mettere qui dentro nulla che cambi da pagina a pagina.
+=====================================================================================
+{%- endcomment -%}
+{%- if i18n -%}{%- assign nv_items = i18n.navigation.main -%}{%- else -%}{%- assign nv_items = site.data.navigation.main -%}{%- endif -%}
+<header class="nv-header">
+  <nav id="site-nav" class="nv" aria-label="Menu principale">
+    <div class="nv__inner">
+      <a class="nv__brand" href="{{ lg_home | relative_url }}"><img class="nv__logo" src="{{ '/assets/images/logo-72.png' | relative_url }}" alt="" width="34" height="34">{{ site.masthead_title | default: site_name }}</a>
+
+      <!-- Pulsante hamburger: visibile solo sotto i 768px (vedi menu.css) -->
+      <button class="nv__toggle collapsed" type="button" data-nv-toggle="nv-panel"
+              aria-controls="nv-panel" aria-expanded="false" aria-label="Apri il menu di navigazione">
+        <span class="nv__bar nv__bar--top"></span>
+        <span class="nv__bar nv__bar--mid"></span>
+        <span class="nv__bar nv__bar--bot"></span>
+      </button>
+
+      <div class="nv__panel" id="nv-panel">
+        <ul class="nv__list">
+          {%- for item in nv_items -%}{%- if item.title == 'Shop' and site.ecommerce != true -%}{%- continue -%}{%- endif -%}
+            {%- assign u = item.url | default: '#' -%}
+
+            {%- comment -%} 1) costruisco le voci della tendina (se ce ne sono) {%- endcomment -%}
+            {%- if i18n -%}{%- assign kids = i18n.sottomenu[item.title] -%}{%- else -%}{%- assign kids = site.data.sottomenu[item.title] -%}{%- endif -%}
+            {%- comment -%} Tendina con piu' di 8 voci = LARGA su 2 colonne (niente scroll lungo). Soglia: cambia il numero 8. {%- endcomment -%}
+            {%- assign wide = false -%}
+            {%- if kids.size > 1 -%}{%- assign wide = true -%}{%- endif -%}
+            {%- capture dd_html -%}
+              {%- if kids -%}
+                {%- for k in kids -%}
+                  {%- if k.divider -%}
+                    <div class="nv__divider" role="separator"></div>
+                  {%- elsif k.title and k.url -%}
+                    <a class="nv__dd-item" href="{% if k.url contains '://' %}{{ k.url }}{% else %}{{ k.url | relative_url }}{% endif %}">{{ k.title }}</a>
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- elsif item.title == 'Shop' -%}
+                {%- for c in shopnav.categories -%}
+                  {%- if c.title and c.url -%}<a class="nv__dd-item" href="{{ c.url | relative_url }}">{{ c.title }}</a>{%- endif -%}
+                {%- endfor -%}
+                {%- if shopnav.categories.size > 0 and shopnav.featured.size > 0 -%}
+                  <div class="nv__divider" role="separator"></div>
+                {%- endif -%}
+                {%- for f in shopnav.featured -%}
+                  {%- if f.title and f.url -%}<a class="nv__dd-item" href="{{ f.url | relative_url }}">{{ f.title }}</a>{%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            {%- endcapture -%}
+            {%- if item.title == 'Shop' -%}{%- assign wide = true -%}{%- endif -%}
+
+            {%- if dd_html contains '<a' -%}
+              <!-- VOCE CON TENDINA: il padre e' un pulsante, non un link -->
+              <li class="nv__item nv__item--dd{% if wide %} nv__item--wide{% endif %}">
+                <button class="nv__link nv__link--dd" type="button" data-nv-dropdown-toggle
+                        aria-haspopup="true" aria-expanded="false">{{ item.title }}</button>
+                <div class="nv__dd{% if wide %} nv__dd--wide{% endif %}">{{ dd_html }}</div>
+              </li>
+            {%- else -%}
+              <!-- VOCE SEMPLICE -->
+              <li class="nv__item">
+                <a class="nv__link" href="{% if u contains '://' %}{{ u }}{% elsif u == '#' %}#{% else %}{{ u | relative_url }}{% endif %}"{% if u contains '://' %} target="_blank" rel="noopener"{% endif %}>{{ item.title }}</a>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- comment -%}
+            Strumenti a destra: ricerca del tema (+ carrello inserito da head/custom.html).
+            Togli questo <li> per eliminare la lente. Il carrello sparisce con lei (si appoggia qui).
+          {%- endcomment -%}
+          {%- include lingue-attive.html -%}
+          {%- if lg_arr.size > 1 -%}
+          {%- comment -%} SELETTORE LINGUA (lingue rilevate dalle cartelle, vedi _includes/lingue-attive.html): bandiera + tendina. Lingua corrente e link alle traduzioni sono calcolati da assets/js/menu.js (il masthead e' in cache). {%- endcomment -%}
+          <li class="nv__item nv__item--dd nv__item--lang" data-lang-base="{{ site.baseurl }}" data-lang-default="{{ site.default_lang }}">
+            <button class="nv__link nv__link--dd nv__lang-btn" type="button" data-nv-dropdown-toggle aria-haspopup="true" aria-expanded="false" aria-label="Lingua / Language">
+              <img class="nv__flag" data-lang-current src="{{ '/assets/images/flags/' | append: site.default_lang | append: '.svg' | relative_url }}" alt="" width="22" height="16"><span class="nv__lang-code" data-lang-code>{{ site.default_lang | upcase }}</span>
+            </button>
+            <div class="nv__dd nv__dd--lang">
+              {%- for l in lg_arr -%}
+                {%- if l == site.default_lang -%}{%- assign lh = '/' | relative_url -%}{%- else -%}{%- assign lh = '/' | append: l | append: '/' | relative_url -%}{%- endif -%}
+                <a class="nv__dd-item nv__lang-item" data-lang="{{ l }}" href="{{ lh }}" hreflang="{{ l }}"><img class="nv__flag" src="{{ '/assets/images/flags/' | append: l | append: '.svg' | relative_url }}" alt="" width="22" height="16" onerror="this.style.display='none'"><span>{{ site.data.languages[l].name | default: l }}</span></a>
+              {%- endfor -%}
+            </div>
+          </li>
+          {%- endif -%}
+          {%- if site.search == true -%}
+            <li class="nv__item nv__tools">
+              <button class="search__toggle" type="button" aria-label="Cerca nel sito">
+                <svg class="nv__ico" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+              </button>
+            </li>
+          {%- endif -%}
+        </ul>
+      </div>
+      {%- if site.ecommerce == true -%}
+      {%- capture nz_cat -%}{%- for b in site.data.catalogo.prodotti -%}{%- unless b.visibile == false -%}{"id":{{ b.id | jsonify }},"p":{{ b.prezzo_centesimi | default: 0 | jsonify }},"n":{{ b.tr[lg].nome | default: b.nome | jsonify }},"t":{{ b.tipo | default: 'fisico' | jsonify }},"u":{% capture nz_pu %}{% include shop-url.html k="prod" id=b.id %}{% endcapture %}{{ nz_pu | jsonify }},"i":{% if b.immagine and b.immagine != '' %}{% if b.immagine contains '://' %}{{ b.immagine | jsonify }}{% else %}{{ '/' | append: b.immagine | relative_url | jsonify }}{% endif %}{% else %}""{% endif %},"e":{{ b.icona | default: '' | jsonify }}},{%- endunless -%}{%- endfor -%}{%- endcapture -%}
+      <div class="nv__cart nv__cart--nz">
+      <div class="nz-cartw">
+                <a id="nz-cart" class="nz-cart" href="{{ lg_home | append: 'carrello/' | relative_url }}" data-catalogo="{{ nz_cat | escape }}" aria-label="Carrello">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.6l2.3 11.2a1.6 1.6 0 0 0 1.6 1.3h8.5a1.6 1.6 0 0 0 1.6-1.2l1.5-6.8H6"/></svg>
+                  <span class="nz-n">(0)</span>
+                </a>
+                <div class="nz-prev" id="nz-prev"></div>
+              </div>
+      </div>
+      {%- else -%}
+      <a class="nv__cart" href="{{ lg_home | append: 'carrello/' | relative_url }}" aria-label="{% if lg == 'en' %}Cart{% else %}Carrello{% endif %}">
+        <svg class="nv__ico" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+      </a>
+      {%- endif -%}
+    </div>
+  </nav>
+</header>
+<script src="{{ '/assets/js/menu.js' | relative_url }}" defer></script>

@@ -1,0 +1,169 @@
+{
+  "version": "1.0",
+  "theme": "cmspush-minimal-mistakes",
+  "zones": {
+    "site": {
+      "label": "Site identity",
+      "fields": {
+        "title": {
+          "file": "_config.yml",
+          "regex": "^title:.*$",
+          "replace": "title: {{value}}"
+        },
+        "description": {
+          "file": "_config.yml",
+          "regex": "description: >-\\n  .*",
+          "replace": "description: >-\n  {{value}}"
+        }
+      }
+    },
+    "author": {
+      "label": "Author profile",
+      "fields": {
+        "name": {
+          "file": "_config.yml",
+          "regex": "  name   : \".*\"",
+          "replace": "  name   : \"{{value}}\""
+        },
+        "bio": {
+          "file": "_config.yml",
+          "regex": "  bio    : \".*\"",
+          "replace": "  bio    : \"{{value}}\""
+        }
+      }
+    },
+    "hero": {
+      "label": "Hero slider (3 slides)",
+      "fields": {
+        "slide1_eyebrow": {
+          "file": "_pages/home.md",
+          "regex": "(<div class=\"lx-slide active\">[\\s\\S]*?)<p class=\"lx-slide-eyebrow\">[^<]*</p>",
+          "replace": "$1<p class=\"lx-slide-eyebrow\">{{value}}</p>"
+        },
+        "slide1_title": {
+          "file": "_pages/home.md",
+          "regex": "(<div class=\"lx-slide active\">[\\s\\S]*?)<h1 class=\"lx-slide-title\">[\\s\\S]*?</h1>",
+          "replace": "$1<h1 class=\"lx-slide-title\">{{value}}</h1>"
+        },
+        "slide1_sub": {
+          "file": "_pages/home.md",
+          "regex": "(<div class=\"lx-slide active\">[\\s\\S]*?)<p class=\"lx-slide-sub\">[^<]*</p>",
+          "replace": "$1<p class=\"lx-slide-sub\">{{value}}</p>"
+        },
+        "slide2_eyebrow": {
+          "file": "_pages/home.md",
+          "nth": 2,
+          "regex": "<p class=\"lx-slide-eyebrow\">[^<]*</p>",
+          "replace": "<p class=\"lx-slide-eyebrow\">{{value}}</p>"
+        },
+        "slide2_title": {
+          "file": "_pages/home.md",
+          "nth": 2,
+          "regex": "<h1 class=\"lx-slide-title\">[\\s\\S]*?</h1>",
+          "replace": "<h1 class=\"lx-slide-title\">{{value}}</h1>"
+        },
+        "slide2_sub": {
+          "file": "_pages/home.md",
+          "nth": 2,
+          "regex": "<p class=\"lx-slide-sub\">[^<]*</p>",
+          "replace": "<p class=\"lx-slide-sub\">{{value}}</p>"
+        },
+        "slide3_eyebrow": {
+          "file": "_pages/home.md",
+          "nth": 3,
+          "regex": "<p class=\"lx-slide-eyebrow\">[^<]*</p>",
+          "replace": "<p class=\"lx-slide-eyebrow\">{{value}}</p>"
+        },
+        "slide3_title": {
+          "file": "_pages/home.md",
+          "nth": 3,
+          "regex": "<h1 class=\"lx-slide-title\">[\\s\\S]*?</h1>",
+          "replace": "<h1 class=\"lx-slide-title\">{{value}}</h1>"
+        },
+        "slide3_sub": {
+          "file": "_pages/home.md",
+          "nth": 3,
+          "regex": "<p class=\"lx-slide-sub\">[^<]*</p>",
+          "replace": "<p class=\"lx-slide-sub\">{{value}}</p>"
+        }
+      }
+    },
+    "intro": {
+      "label": "Intro section (below hero)",
+      "fields": {
+        "label": {
+          "file": "_pages/home.md",
+          "regex": "<p class=\"lx-desc-label\">[^<]*</p>",
+          "replace": "<p class=\"lx-desc-label\">{{value}}</p>"
+        },
+        "title": {
+          "file": "_pages/home.md",
+          "regex": "<h2 class=\"lx-desc-title\">[\\s\\S]*?</h2>",
+          "replace": "<h2 class=\"lx-desc-title\">{{value}}</h2>"
+        },
+        "text": {
+          "file": "_pages/home.md",
+          "regex": "<p class=\"lx-desc-text\">[^<]*</p>",
+          "replace": "<p class=\"lx-desc-text\">{{value}}</p>"
+        },
+        "cta": {
+          "file": "_pages/home.md",
+          "regex": "class=\"lx-desc-cta\">[^<]*</a>",
+          "replace": "class=\"lx-desc-cta\">{{value}}</a>"
+        }
+      }
+    },
+    "steps": {
+      "label": "3 steps section",
+      "fields": {
+        "step1_title": {
+          "file": "_pages/home.md",
+          "nth": 1,
+          "regex": "<h3 class=\"lx-step-title\">[^<]*</h3>",
+          "replace": "<h3 class=\"lx-step-title\">{{value}}</h3>"
+        },
+        "step1_desc": {
+          "file": "_pages/home.md",
+          "nth": 1,
+          "regex": "<p class=\"lx-step-desc\">[^<]*</p>",
+          "replace": "<p class=\"lx-step-desc\">{{value}}</p>"
+        },
+        "step2_title": {
+          "file": "_pages/home.md",
+          "nth": 2,
+          "regex": "<h3 class=\"lx-step-title\">[^<]*</h3>",
+          "replace": "<h3 class=\"lx-step-title\">{{value}}</h3>"
+        },
+        "step2_desc": {
+          "file": "_pages/home.md",
+          "nth": 2,
+          "regex": "<p class=\"lx-step-desc\">[^<]*</p>",
+          "replace": "<p class=\"lx-step-desc\">{{value}}</p>"
+        },
+        "step3_title": {
+          "file": "_pages/home.md",
+          "nth": 3,
+          "regex": "<h3 class=\"lx-step-title\">[^<]*</h3>",
+          "replace": "<h3 class=\"lx-step-title\">{{value}}</h3>"
+        },
+        "step3_desc": {
+          "file": "_pages/home.md",
+          "nth": 3,
+          "regex": "<p class=\"lx-step-desc\">[^<]*</p>",
+          "replace": "<p class=\"lx-step-desc\">{{value}}</p>"
+        }
+      }
+    },
+    "about": {
+      "label": "About page body",
+      "fields": {
+        "body": {
+          "file": "_pages/about.md",
+          "regex": "---\\n\\n[\\s\\S]*$",
+          "replace": "---\n\n{{value}}"
+        }
+      }
+    }
+  },
+  "prompt_template": "Sei un copywriter. Ricevi una descrizione di un sito/attività e devi compilare SOLO questo JSON senza aggiungere nulla, niente markdown, niente spiegazioni:\n\n{\"site\":{\"title\":\"\",\"description\":\"\"},\"author\":{\"name\":\"\",\"bio\":\"\"},\"hero\":[{\"eyebrow\":\"\",\"title\":\"\",\"sub\":\"\"},{\"eyebrow\":\"\",\"title\":\"\",\"sub\":\"\"},{\"eyebrow\":\"\",\"title\":\"\",\"sub\":\"\"}],\"intro\":{\"label\":\"\",\"title\":\"\",\"text\":\"\",\"cta\":\"\"},\"steps\":[{\"title\":\"\",\"desc\":\"\"},{\"title\":\"\",\"desc\":\"\"},{\"title\":\"\",\"desc\":\"\"}],\"about\":{\"body\":\"\"}}\n\nDescrizione sito:\n{{user_input}}"
+}

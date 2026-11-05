@@ -1,0 +1,36 @@
+{
+  "_nota": "Catalogo dello shop (serve solo con ecommerce: true in _config.yml). Prezzi in CENTESIMI. Ogni prodotto/categoria ha anche una pagina in _negozio/ (layout negozio-prodotto con pid=<id>, negozio-categoria con cid=<id>). L'id categoria e' riservato. tipo: digitale (niente spedizione) o fisico. visibile:false nasconde senza cancellare. TRADUZIONI: ogni categoria/prodotto puo' avere \"tr\": {\"en\": {\"nome\": \"...\", \"descrizione\": \"...\", \"descrizione_completa\": \"...\"}}; campo mancante = si usa l'italiano.",
+  "categorie": [
+    {
+      "nome": "Esempio",
+      "id": "esempio",
+      "icona": "🛍️",
+      "tr": {
+        "en": {
+          "nome": "Example"
+        }
+      }
+    }
+  ],
+  "prodotti": [
+    {
+      "tipo": "digitale",
+      "id": "prodotto-esempio",
+      "nome": "Prodotto di esempio",
+      "categoria": "esempio",
+      "prezzo_centesimi": 1000,
+      "descrizione": "Descrizione breve del prodotto di esempio.",
+      "descrizione_completa": "Descrizione completa del prodotto.\nOgni riga diventa un paragrafo.",
+      "immagine": "",
+      "icona": "🛍️",
+      "visibile": true,
+      "tr": {
+        "en": {
+          "nome": "Example product",
+          "descrizione": "Short description of the example product.",
+          "descrizione_completa": "Full description of the product.\nEach line becomes a paragraph."
+        }
+      }
+    }
+  ]
+}

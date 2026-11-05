@@ -1,0 +1,30 @@
+#!/bin/sh
+# =====================================================================================
+# .githooks/pre-commit  -  SOSTITUISCE il workflow GitHub Actions delle traduzioni
+# (niente scope "workflow" su gh, niente Actions: gira sul PC a ogni commit).
+#
+# Cosa fa: lancia automation/traduzioni_sync.py, che segna `tr: da_aggiornare` nelle
+# traduzioni il cui testo originale e' cambiato, poi aggiunge al commit SOLO i file
+# gia' tracciati che lo script ha toccato (git add -u). Se il sito e' solo in italiano
+# non fa nulla. Se Python manca, salta senza bloccare il commit.
+#
+# ATTIVAZIONE (una volta per clone, la fa nuovo_sito.ps1):  git config core.hooksPath .githooks
+# NON metterci logica che puo' fallire in modo bloccante: un hook rotto ferma ogni commit.
+# =====================================================================================
+cd "$(git rev-parse --show-toplevel)" || exit 0
+[ -f automation/traduzioni_sync.py ] || exit 0
+if command -v python >/dev/null 2>&1; then PY=python
+elif command -v python3 >/dev/null 2>&1; then PY=python3
+elif command -v py >/dev/null 2>&1; then PY=py
+else exit 0; fi
+# Aggiunge al commit SOLO i file che lo script ha cambiato ORA (confronto prima/dopo),
+# cosi' i commit selettivi (pubblica.ps1 -Files ...) non si portano dietro altre modifiche.
+BEFORE=$(git diff --name-only)
+$PY automation/traduzioni_sync.py >/dev/null 2>&1 || exit 0
+AFTER=$(git diff --name-only)
+echo "$AFTER" | while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  echo "$BEFORE" | grep -qxF "$f" && continue
+  git add -- "$f" 2>/dev/null
+done
+exit 0

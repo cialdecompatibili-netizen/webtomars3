@@ -1,0 +1,24 @@
+{%- comment -%}
+GUIDA-SVILUPPO: URL di una pagina dello shop NELLA LINGUA DELLA PAGINA CORRENTE. Gli slug cambiano da lingua a lingua (/negozio/ -> /en/shop/, /negozio/categoria/donna/ -> /en/shop/category/women/): MAI costruirli a mano con nz_lh.
+Parametri: k="shop" (elenco prodotti) | k="cat" id=<id categoria> | k="prod" id=<id prodotto>.
+Come funziona: cerca la pagina con ref "shop-negozio" / "shop-cat-<id>" / "shop-prod-<id>" nella lingua corrente, poi nella lingua base; se nessuna ha quel ref (es. prodotto creato da admin senza ref) usa la vecchia formula /xx/negozio/...
+Ogni file categoria/prodotto (e la sua copia tradotta) deve quindi avere il campo ref. Non scrive spazi: si puo' usare dentro href="...".
+{%- endcomment -%}
+{%- assign su_lh = '/' -%}{%- if page.lang and page.lang != site.default_lang -%}{%- assign su_lh = '/' | append: page.lang | append: '/' -%}{%- endif -%}
+{%- if include.k == 'cat' -%}
+{%- capture su_ref -%}shop-cat-{{ include.id }}{%- endcapture -%}
+{%- assign su_fb = su_lh | append: 'negozio/categoria/' | append: include.id | append: '/' -%}
+{%- elsif include.k == 'prod' -%}
+{%- capture su_ref -%}shop-prod-{{ include.id }}{%- endcapture -%}
+{%- assign su_fb = su_lh | append: 'negozio/' | append: include.id | append: '/' -%}
+{%- else -%}
+{%- assign su_ref = 'shop-negozio' -%}
+{%- assign su_fb = su_lh | append: 'negozio/' -%}
+{%- endif -%}
+{%- assign su_l = page.lang | default: site.default_lang -%}
+{%- assign su_all = site.pages | concat: site.documents | where: 'ref', su_ref -%}
+{%- assign su_u = '' -%}
+{%- for a in su_all -%}{%- if a.lang == su_l -%}{%- assign su_u = a.url -%}{%- endif -%}{%- endfor -%}
+{%- if su_u == '' -%}{%- for a in su_all -%}{%- if a.lang == site.default_lang -%}{%- assign su_u = a.url -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+{%- if su_u == '' -%}{%- assign su_u = su_fb -%}{%- endif -%}
+{{- su_u | relative_url -}}

@@ -1,0 +1,25 @@
+# =====================================================================================
+# _data/date_ui.yml - ETICHETTE E MESI per le date degli articoli (usato da _includes/page__date.html).
+# Chiave di primo livello = codice lingua (come in _config.yml > languages). Lingua mancante = si usa "en".
+# Nuova lingua: copia un blocco, cambia codice e traduci. Se manca "mesi" la data esce numerica (gg/mm/aaaa).
+# =====================================================================================
+it:
+  pubblicato: "Pubblicato:"
+  aggiornato: "Aggiornato:"
+  mesi: [gennaio, febbraio, marzo, aprile, maggio, giugno, luglio, agosto, settembre, ottobre, novembre, dicembre]
+en:
+  pubblicato: "Published:"
+  aggiornato: "Updated:"
+  mesi: [January, February, March, April, May, June, July, August, September, October, November, December]
+de:
+  pubblicato: "Veröffentlicht:"
+  aggiornato: "Aktualisiert:"
+  mesi: [Januar, Februar, März, April, Mai, Juni, Juli, August, September, Oktober, November, Dezember]
+fr:
+  pubblicato: "Publié :"
+  aggiornato: "Mis à jour :"
+  mesi: [janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre]
+es:
+  pubblicato: "Publicado:"
+  aggiornato: "Actualizado:"
+  mesi: [enero, febrero, marzo, abril, mayo, junio, julio, agosto, septiembre, octubre, noviembre, diciembre]

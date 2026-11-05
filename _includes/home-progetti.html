@@ -1,0 +1,10 @@
+{%- comment -%}
+GUIDA-SVILUPPO: blocco "Lavori svolti" della home, richiamato da render-blocks.html per il blocco con id "progetti". Legge la collection progetti (campi importance e in_home), massimo 6.
+{%- endcomment -%}
+{% assign prj = site.progetti | where_exp: "p", "p.in_home != false" | sort: "importance" %}
+{% if prj.size > 0 %}
+<section class="ex-sec ex-sec-warm" id="lavori" aria-labelledby="lavori-title"><div class="ex-wrap"><div class="ex-svc-head"><h2 class="ex-h2" id="lavori-title">Lavori svolti</h2><p>Alcuni interventi realizzati su fune, senza ponteggi.</p></div><div class="ex-svcs">
+{% for p in prj limit: 6 %}<a class="ex-svc" href="{{ p.url | relative_url }}"><span class="ex-svc-t">{{ p.title }}</span><span class="ex-svc-d">{{ p.description | default: p.excerpt | strip_html | strip | truncatewords: 14 }}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></a>
+{% endfor %}
+</div></div></section>
+{% endif %}

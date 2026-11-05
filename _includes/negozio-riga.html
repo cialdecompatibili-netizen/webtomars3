@@ -1,0 +1,16 @@
+{%- comment -%} RIGA PRODOTTO (usata da negozio-categoria.html). Classi nz-* e data-* sono lette da carrello.js e shop-i18n.js: non rinominare. Testi tradotti da catalogo.json > tr[lingua], con ripiego sull'italiano. {%- endcomment -%}
+{%- assign nz_lh = '/' -%}{%- if page.lang and page.lang != site.default_lang -%}{%- assign nz_lh = '/' | append: page.lang | append: '/' -%}{%- endif -%}
+<div class="nz-riga nz-box" data-id="{{ include.b.id }}" data-cat="{{ include.b.categoria }}" data-nome="{{ include.b.tr[page.lang].nome | default: include.b.nome | escape }}" data-prezzo="{{ include.b.prezzo_centesimi | default: 0 }}" data-tipo="{{ include.b.tipo | default: 'fisico' }}">
+<div class="nz-icona">{% if include.b.immagine and include.b.immagine != '' %}<img src="{% if include.b.immagine contains '://' %}{{ include.b.immagine }}{% else %}{{ '/' | append: include.b.immagine | relative_url }}{% endif %}" alt="" loading="lazy">{% else %}{{ include.b.icona }}{% endif %}</div>
+<div class="nz-testo">
+<p class="nz-cat">{{ include.cat.tr[page.lang].nome | default: include.cat.nome }} &middot; <span>{% if include.b.tipo == 'digitale' %}digitale{% else %}fisico{% endif %}</span></p>
+<h3><a href="{% include shop-url.html k="prod" id=include.b.id %}">{{ include.b.tr[page.lang].nome | default: include.b.nome }}</a></h3>
+<div class="nz-prezzo fw-bold"></div>
+<p class="nz-breve">{{ include.b.tr[page.lang].descrizione | default: include.b.descrizione }}</p>
+</div>
+<div class="nz-azioni">
+<div class="nz-step"><button type="button" class="nz-stp" data-d="-1" aria-label="Meno">&minus;</button><input type="number" class="nz-qta" min="1" max="20" value="1" aria-label="Quantit&agrave;"><button type="button" class="nz-stp" data-d="1" aria-label="Pi&ugrave;">+</button></div>
+<button type="button" class="btn btn-primary nz-add">Aggiungi al carrello</button>
+<span class="nz-ok" aria-live="polite"></span>
+</div>
+</div>
