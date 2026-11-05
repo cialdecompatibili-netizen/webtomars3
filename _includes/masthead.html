@@ -87,7 +87,7 @@
             {%- if i18n -%}{%- assign kids = i18n.sottomenu[item.title] -%}{%- else -%}{%- assign kids = site.data.sottomenu[item.title] -%}{%- endif -%}
             {%- comment -%} Tendina con piu' di 8 voci = LARGA su 2 colonne (niente scroll lungo). Soglia: cambia il numero 8. {%- endcomment -%}
             {%- assign wide = false -%}
-            {%- if kids.size > 1 -%}{%- assign wide = true -%}{%- endif -%}
+            {%- if kids.size > 8 -%}{%- assign wide = true -%}{%- endif -%}
             {%- capture dd_html -%}
               {%- if kids -%}
                 {%- for k in kids -%}
