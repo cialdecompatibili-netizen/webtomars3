@@ -1,8 +1,4 @@
-# Riquadro "foto + presentazione" in cima alla barra laterale degli articoli.
-# Compare solo se "foto" e' compilata. Esempio:
-#   foto: /assets/images/chi-siamo.jpg
-#   titolo: "Nome Sito"
-#   testo: "Una frase che presenta il sito."
-foto: ""
-titolo: ""
-testo: ""
+# Riquadro foto + presentazione in cima alla barra laterale degli articoli (foto demo, sostituire).
+foto: /assets/images/autore-segnaposto.svg
+titolo: "Webtomars"
+testo: "Web agency a Roma dal 2010. Siti, e-commerce e SEO su misura per far crescere il tuo business. Scrivici: la prima consulenza e' gratuita."

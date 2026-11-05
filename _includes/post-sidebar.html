@@ -65,32 +65,4 @@ Gli stili stanno qui dentro in <style> con !important perche' devono vincere sul
 
   <button type="button" class="ps-search" onclick="var t=document.querySelector('.search__toggle');if(t){t.click();}">Cerca nel Blog <span aria-hidden="true">&#128269;</span></button>
 
-  <section class="ps-card">
-    <h2>Post recenti</h2>
-    <ul class="ps-list">
-      {%- assign shown = 0 -%}
-      {%- for p in posts_l -%}
-        {%- if p.url != page.url and shown < 5 -%}
-        <li><a class="ps-post" href="{{ p.url | relative_url }}">
-          {%- if p.header.teaser -%}<img src="{{ p.header.teaser | relative_url }}" alt="" loading="lazy">{%- else -%}<span class="ps-ph"></span>{%- endif -%}
-          <span>{{ p.title }}</span></a></li>
-        {%- assign shown = shown | plus: 1 -%}
-        {%- endif -%}
-      {%- endfor -%}
-    </ul>
-  </section>
-
-  <section class="ps-card">
-    <h2>Rubriche</h2>
-    <ul class="ps-list ps-cats">
-      {%- assign ps_cats = posts_l | map: "categories" | join: "," | split: "," | uniq | sort | where_exp: "c","c != page.lang" -%}
-      {%- for c in ps_cats -%}
-        {%- assign ps_page = site.pages | where: "categoria", c | first -%}
-        {%- if ps_page -%}
-          {%- assign n = posts_l | where_exp: "p","p.categories contains c" | size -%}
-          <li><a href="{{ ps_page.url | relative_url }}"><span>{{ c }}</span><span class="ps-n">{{ n }}</span></a></li>
-        {%- endif -%}
-      {%- endfor -%}
-    </ul>
-  </section>
 </aside>
