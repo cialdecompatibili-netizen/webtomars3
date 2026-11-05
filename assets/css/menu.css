@@ -108,7 +108,7 @@ a.nv__dd-item.active, a.nv__dd-item.active:visited, a.nv__dd-item.active:hover {
 
 /* Brand luxury */
 .nv__brand{font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-weight:600;font-size:1.15rem;letter-spacing:.12em;text-transform:uppercase}
-.nv__logo{border-radius:7px;box-shadow:0 0 0 1px rgba(14,116,144,.35)}
+.nv__logo{border-radius:50%;box-shadow:none}
 /* Selettore lingua */
 .lang-switch{display:flex;gap:1rem;justify-content:center;padding:1rem 0;font-size:.85rem;letter-spacing:.14em;text-transform:uppercase}
 .lang-switch a{text-decoration:none;opacity:.7}.lang-switch a:hover{opacity:1}.lang-switch__cur{font-weight:700}
