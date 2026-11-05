@@ -6,7 +6,6 @@ description: "Struttura del catalogo, schede prodotto, velocita' e contenuti: i 
 categories:
   - SEO
 toc: true
-author_profile: false
 comments: false
 header:
   teaser: /assets/images/blog/seo-per-ecommerce.jpg

@@ -6,7 +6,6 @@ description: "SEO o Google Ads (ex AdWords)? Differenze, costi e tempi dei due c
 categories:
   - Web marketing
 toc: true
-author_profile: false
 comments: false
 header:
   teaser: /assets/images/blog/google-ads-o-seo.jpg

@@ -6,7 +6,6 @@ description: "Dal numero di pagine alla manutenzione: i fattori che determinano 
 categories:
   - Web design
 toc: true
-author_profile: false
 comments: false
 header:
   teaser: /assets/images/blog/quanto-costa-un-sito-web.jpg

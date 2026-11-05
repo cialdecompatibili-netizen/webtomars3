@@ -42,9 +42,10 @@ search: true
 
 # SEO globale
 author:
-  name: "Nome autore"
+  name: "Webtomars"
   avatar: "/assets/images/autore-segnaposto.svg"
-  bio: "Scrivi qui una breve presentazione dell'autore o del sito: chi sei, di cosa ti occupi e come contattarti."
+  home: "/azienda/"
+  bio: "Web agency a Roma dal 2010. Siti, e-commerce e SEO su misura per far crescere il tuo business. Scrivici: la prima consulenza e' gratuita."
   links:
     - label: "Contatti"
       icon: "fas fa-fw fa-envelope"

@@ -1,13 +1,8 @@
 {%- comment -%}
-GUIDA-SVILUPPO: BARRA LATERALE degli articoli (impaginazione affiancata dei post). Incluso da _layouts/single.html (riga con post-sidebar).
-Mostra solo articoli della STESSA lingua della pagina (where: "lang", page.lang): ogni articolo deve avere il campo lang.
-Gli stili stanno qui dentro in <style> con !important perche' devono vincere sul tema. La classe .has-postside sul #main la mette single.html SOLO per gli articoli (page.collection == "posts"): non rinominarla.
+Stili delle card "Potrebbe interessarti anche" negli articoli (immagine a sinistra). Incluso da _layouts/single.html solo per i post.
+La barra laterale (foto, bio, Segui) e' quella standard del tema (author_profile + author in _config.yml), come edilextreme: posizione desktop in assets/css/main.scss (#main:has(> .sidebar)).
 {%- endcomment -%}
-{%- assign posts_l = site.posts | where: "lang", page.lang -%}
 <style>
-.has-postside{display:flex;flex-wrap:wrap;gap:2.2rem;align-items:flex-start}
-.has-postside > .page{float:none !important;flex:1 1 0;min-width:0;width:auto !important;margin:0 !important;padding:0 !important}
-.has-postside > .page__related{flex:0 0 calc(100% - 332px);max-width:calc(100% - 332px);width:auto !important;float:none;clear:both;margin:0 !important}
 .has-postside .page__related .grid__wrapper{display:grid !important;grid-template-columns:1fr !important;gap:1rem !important}
 .has-postside .page__related .grid__item{width:auto !important;margin:0 !important;float:none !important;clear:none !important;padding:0 !important}
 .has-postside .page__related .archive__item{display:grid;grid-template-columns:clamp(150px,32%,230px) 1fr;grid-template-rows:auto auto 1fr;grid-template-areas:"img title" "img meta" "img exc";height:auto;background:#fff;border:1px solid #e9e3d9;border-radius:18px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
@@ -17,56 +12,8 @@ Gli stili stanno qui dentro in <style> con !important perche' devono vincere sul
 .has-postside .page__related .archive__item-title{grid-area:title;margin:0 !important;padding:1.1rem 1.3rem 0}
 .has-postside .page__related .page__meta{grid-area:meta;margin:0 !important;padding:.3rem 1.3rem 0}
 .has-postside .page__related .archive__item-excerpt{grid-area:exc;margin:0 !important;padding:.5rem 1.3rem 1.1rem}
-.ps{flex:0 0 300px;width:300px;position:sticky;top:5.5rem;display:flex;flex-direction:column;gap:1.1rem;font-family:'Inter',system-ui,sans-serif;color:#141414}
-.ps *{box-sizing:border-box}
-.ps-card{background:#fff;border:1px solid #e9e3d9;border-radius:18px;padding:1.2rem 1.25rem}
-.ps-card h2{font-family:'Playfair Display',Georgia,serif;font-weight:500;font-size:1.15rem;line-height:1.3;margin:0 0 .8rem;padding:0;border:0}
-.ps-about{padding:0;overflow:hidden}
-.ps-about img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
-.ps-about-body{padding:1.1rem 1.25rem 1.3rem}
-.ps-about-body h2{margin:0 0 .4rem}
-.ps-about-body p{margin:0 0 .8rem;font-size:.92rem;line-height:1.65;color:#5b5650}
-.ps-link{font-size:.82rem;font-weight:600;color:#0e7490;text-decoration:none;border-bottom:1px solid #7fd8e6;padding-bottom:2px}
-.ps-link:hover{color:#141414;border-color:#141414}
-.ps-search{width:100%;display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.8rem 1.1rem;border:1px solid #e9e3d9;border-radius:999px;background:#fff;color:#7a746b;font:inherit;font-size:.92rem;cursor:pointer;transition:border-color .2s}
-.ps-search:hover{border-color:#7fd8e6}
-.ps-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.85rem}
-.ps-list li{margin:0;padding:0}
-.ps-post{display:grid;grid-template-columns:68px 1fr;gap:.8rem;align-items:center;text-decoration:none;color:inherit}
-.ps-post img,.ps-post .ps-ph{width:68px;height:54px;border-radius:10px;object-fit:cover;background:#f3eee6;display:block}
-.ps-post span{font-size:.9rem;line-height:1.4;color:#141414}
-.ps-post:hover span{color:#0e7490}
-.ps-cats a{display:flex;justify-content:space-between;gap:.6rem;padding:.5rem 0;border-bottom:1px solid #f0ebe2;font-size:.92rem;color:#141414;text-decoration:none}
-.ps-cats li:last-child a{border-bottom:0}
-.ps-cats a:hover{color:#0e7490}
-.ps-n{color:#9a948a;font-size:.82rem}
-.ps a:focus-visible,.ps button:focus-visible{outline:3px solid #0e9bb5;outline-offset:3px}
-@media(max-width:960px){
-.ps{flex:0 0 100%;width:100%;position:static;order:-1;gap:.7rem}
-.ps-about{display:grid;grid-template-columns:84px 1fr;align-items:center;gap:.9rem}
-.ps-about img{width:84px;height:84px;aspect-ratio:1;border-radius:50%;margin:.9rem 0 .9rem .9rem}
-.ps-about-body{padding:.9rem 1rem .9rem 0}
-.ps-about-body h2{margin:0 0 .2rem}
-.ps-about-body p{font-size:.85rem;line-height:1.5;margin:0 0 .4rem}
-.has-postside > .page__related{flex:0 0 100%;max-width:100%}
-}
 @media(max-width:640px){
 .has-postside .page__related .archive__item{grid-template-columns:1fr;grid-template-rows:auto auto auto auto;grid-template-areas:"img" "title" "meta" "exc"}
 .has-postside .page__related .archive__item-teaser{min-height:0;aspect-ratio:16/10}
 }
 </style>
-{%- assign sb = site.data.sidebar -%}
-<aside class="ps" aria-label="Barra laterale">
-  <button type="button" class="ps-search" onclick="var t=document.querySelector('.search__toggle');if(t){t.click();}">Cerca nel Blog <span aria-hidden="true">&#128269;</span></button>
-
-  {%- if sb.foto != blank %}
-  <section class="ps-card ps-about">
-    <img src="{{ sb.foto | relative_url }}" alt="{{ sb.titolo | escape }}" loading="lazy">
-    <div class="ps-about-body">
-      <h2>{{ sb.titolo }}</h2>
-      {%- if sb.testo != blank %}<p>{{ sb.testo }}</p>{% endif %}
-      <a class="ps-link" href="{{ '/azienda/' | relative_url }}">Chi siamo</a>
-    </div>
-  </section>
-  {%- endif %}
-</aside>
