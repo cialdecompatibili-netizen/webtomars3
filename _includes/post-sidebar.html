@@ -42,7 +42,12 @@ Gli stili stanno qui dentro in <style> con !important perche' devono vincere sul
 .ps-n{color:#9a948a;font-size:.82rem}
 .ps a:focus-visible,.ps button:focus-visible{outline:3px solid #0e9bb5;outline-offset:3px}
 @media(max-width:960px){
-.ps{flex:0 0 100%;width:100%;position:static}
+.ps{flex:0 0 100%;width:100%;position:static;order:-1;gap:.7rem}
+.ps-about{display:grid;grid-template-columns:84px 1fr;align-items:center;gap:.9rem}
+.ps-about img{width:84px;height:84px;aspect-ratio:1;border-radius:50%;margin:.9rem 0 .9rem .9rem}
+.ps-about-body{padding:.9rem 1rem .9rem 0}
+.ps-about-body h2{margin:0 0 .2rem}
+.ps-about-body p{font-size:.85rem;line-height:1.5;margin:0 0 .4rem}
 .has-postside > .page__related{flex:0 0 100%;max-width:100%}
 }
 @media(max-width:640px){
