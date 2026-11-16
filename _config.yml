@@ -201,4 +201,4 @@ ecommerce: false
 # ordini.tracker: URL dell'Apps Script che riceve gli ordini (SMOKE TEST, nessun pagamento).
 # Vuoto = il pulsante 'Invia richiesta d'ordine' resta spento.
 ordini:
-  tracker: ""
+  tracker: "https://script.google.com/macros/s/AKfycbzS_BXbhdL5lonAPSMcLF0d0zxBgf4L38mxBrhGMSsKrDKp-vlYMCxuWmcUURnu6Vxn/exec"
